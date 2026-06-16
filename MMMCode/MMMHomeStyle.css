@@ -1,0 +1,33 @@
+.courtname {
+     position: relative;
+     align-self: center;
+     
+     /* anchor for the tooltip */
+}
+.courts{
+  background-color: #EFDBBB;
+  border-radius:100%;
+  height:120px;
+  width:120px;
+  text-align:center;
+
+}
+
+
+.tooltip {
+  position: absolute;                 /* positioned relative to .court */
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.2s;
+  background-color: #0C1A3B;
+}
+
+.courtname:hover .tooltip {               /* the magic line */
+  visibility: visible;
+  opacity: 1;
+}
+
+#courtchart{
+  position:relative;
+}
+

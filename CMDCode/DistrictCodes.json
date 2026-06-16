@@ -1,0 +1,185 @@
+{"District Codes":
+    {"New York": {
+        "State Abbreviation":"NY",
+        "State code":1,
+        "Suffolk":{
+            "County code":1,
+            "Districts":{
+                "Babylon":{
+                    "District code":1,
+                    "Towns":[
+                        "Babylon",
+                        "Copiague",
+                        "Amityville",
+                        "Deer Park",
+                        "Lindenhurst",
+                        "North Amityville",
+                        "North Babylon",
+                        "West Babylon",
+                        "Wyandanch"
+                    ]
+                },
+                "Huntington":{
+                    "District code":2,
+                    "Towns":[
+                        "Dix Hills",
+                        "Huntington",
+                        "Huntington Station",
+                        "Lloyd Harbor",
+                        "Cold Spring Harbor",
+                        "Centerport",
+                        "East Northport",
+                        "Melville",
+                        "Greenlawn",
+                        "Northport",
+                        "Elwood"
+                    ]
+                },
+                "Islip":{
+                    "District code":3,
+                    "Towns":[
+                        "Bayport",
+                        "Islip",
+                        "Islip Terrace",
+                        "West Islip",
+                        "Islandia",
+                        "Bohemia",
+                        "Bay Shore",
+                        "Brentwood",
+                        "Brightwaters",
+                        "Central Islip",
+                        "East Islip",	
+                        "Sayville",
+                        "West Sayville",
+                        "Great River",
+                        "Oakdale",
+                        "Ocean Beach"
+                    ]
+                },
+                "Smithtown":{
+                    "District code":4,
+                    "Towns":[
+                        "Commack",
+                        "Smithtown",
+                        "Hauppauge",
+                        "Kings Park",
+                        "Nesconset",
+                        "Saint James"
+                    ]
+                },
+                "Brookhaven":{
+                    "District code":5,
+                    "Towns":[
+                        "Ridge",
+                        "Lake Grove",
+                        "Stony Brook",
+                        "Bellport",
+                        "Blue Point",
+                        "Brookhaven",
+                        "Calverton",
+                        "Center Moriches",
+                        "East Moriches",
+                        "Patchogue",
+                        "North Patchogue",
+                        "East Patchogue",
+                        "Eastport",
+                        "East Setauket",
+                        "Farmingville",
+                        "Holbrook",
+                        "Holtsville",
+                        "Manorville",
+                        "Mastic",
+                        "Mastic Beach",
+                        "Medford",
+                        "Middle Island",
+                        "Miller Place",
+                        "Moriches",
+                        "Mount Sinai",
+                        "Port Jefferson",
+                        "Port Jefferson Station",
+                        "Rocky Point",
+                        "Ronkonkoma",
+                        "Selden",
+                        "Shirley",
+                        "Shoreham",
+                        "Sound Beach",
+                        "Upton",
+                        "Wading River"                
+                    ]
+                },
+                "Riverhead":{
+                    "District code":6,
+                    "Towns": [
+                        "Riverhead",
+                        "Aquebogue",
+                        "Jamesport",
+                        "South Jamesport",
+                        "Laurel"
+                    ]
+                },
+                "Southampton":{
+                    "District code":7,
+                    "Towns":[
+                        "Southampton",
+                        "Bridgehampton",
+                        "Hampton Bays",
+                        "Quogue",
+                        "Remsenburg",
+                        "Sagaponack",
+                        "Speonk",
+                        "Water Mill",
+                        "Westhampton",
+                        "Westhampton Beach",
+                        "East Quogue"
+                    ]
+                },
+                "Shelter Island":{
+                    "District code":8,
+                    "Towns":[
+                        "Shelter Island",
+                        "Shelter Island Heights"
+                    ]
+                },
+
+                "East Hampton":{
+                    "District code":9,
+                    "Towns":[
+                        "East Hampton",
+                        "Amagansett",
+                        "Montauk",
+                        "Napeague",
+                        "Wainscott"
+                    ]
+                },
+                "Southold":{
+                    "District code":0,
+                    "Towns":[
+                        "Cutchogue",
+                        "Southold",
+                        "East Marion",
+                        "New Suffolk",
+                        "Fishers Island",
+                        "Greenport",
+                        "Mattituck",
+                        "Orient",
+                        "Peconic"
+                    ]
+                }
+            }
+        }
+    }},
+"Georgia": {
+        "State Abbreviation":"GA",
+        "State code":0,
+        "Fulton":{
+            "County code":1,
+            "Districts":{
+                "Atlanta":{
+                    "District code":1,
+                    "Towns":[
+                        "Atlanta"
+                    ]
+                }
+            }
+        }
+    }}

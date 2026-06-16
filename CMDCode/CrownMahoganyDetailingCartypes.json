@@ -1,0 +1,10 @@
+{
+  "car_sizes": {
+    "compact":     { "multiplier": 0.9,  "gold_image": "PNG/compact_gold.png", "black_image": "PNG/compact_black.png" },
+    "sedan_coupe": { "multiplier": 1.0,  "gold_image": "PNG/sedan_coupe_gold.png", "black_image": "PNG/sedan_coupe_black.png" },
+    "crossover":   { "multiplier": 1.2,  "gold_image": "PNG/crossover_gold.png", "black_image": "PNG/crossover_black.png" },
+    "suv":         { "multiplier": 1.35, "gold_image": "PNG/suv_gold.png", "black_image": "PNG/suv_black.png" },
+    "truck":       { "multiplier": 1.3,  "gold_image": "PNG/truck_gold.png", "black_image": "PNG/truck_black.png" },
+    "van_minivan": { "multiplier": 1.5,  "gold_image": "PNG/van_minivan_gold.png", "black_image": "PNG/van_minivan_black.png" }
+  }
+}

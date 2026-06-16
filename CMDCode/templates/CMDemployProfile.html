@@ -1,0 +1,51 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+    <title>Profile — {{ employee_name }}</title>
+{% endblock %}
+{% block content %}
+<div class="profile_page">
+
+    <div class="profile_header">
+        {% if employee.headshot %}
+        <img class="profile_headshot" src="{{ url_for('static', filename=employee.headshot) }}" alt="headshot">
+        {% else %}
+        <div class="profile_headshot placeholder_hs"></div>
+        {% endif %}
+        <div class="profile_info">
+            <h1>{{ employee.first_name }} {{ employee.last_name }}</h1>
+            <p class="profile_code">{{ employee.employee_code }}</p>
+            <p class="profile_email">{{ employee.email }}</p>
+            <p class="profile_location">{{ employee.city }}, {{ employee.state }}</p>
+            <div class="profile_badges">
+                {% if employee.is_founder %}<span class="badge founder">Founder</span>{% endif %}
+                {% if employee.manage_access %}<span class="badge manage">Management</span>{% endif %}
+                {% if employee.cmd_access %}<span class="badge branch">CMD</span>{% endif %}
+                {% if employee.mmm_access %}<span class="badge branch">MMM</span>{% endif %}
+                {% if employee.mce_access %}<span class="badge branch">MCE</span>{% endif %}
+                {% if employee.mp_access %}<span class="badge branch">MP</span>{% endif %}
+            </div>
+        </div>
+    </div>
+
+    <a class="edit_link" href="{{ url_for('employee_settings') }}">Edit Profile / Settings →</a>
+
+</div>
+
+<style>
+.profile_page { max-width: 640px; margin: 0 auto; padding: 40px 24px; }
+.profile_header { display:flex; gap:28px; align-items:flex-start; margin-bottom:24px; flex-wrap:wrap; }
+.profile_headshot { width:120px; height:120px; border-radius:12px; object-fit:cover; border:2px solid #FCBE28; flex-shrink:0; }
+.placeholder_hs { background:#1a1a1a; border:2px dashed #333; border-radius:12px; }
+.profile_info h1 { color:#FCBE28; margin:0 0 6px; font-size:22px; }
+.profile_code  { color:#555; font-size:12px; margin:0 0 4px; }
+.profile_email { color:#aaa; font-size:13px; margin:0 0 4px; }
+.profile_location { color:#777; font-size:13px; margin:0 0 12px; }
+.profile_badges { display:flex; gap:6px; flex-wrap:wrap; }
+.badge { font-size:11px; font-weight:bold; padding:3px 9px; border-radius:10px; text-transform:uppercase; }
+.badge.founder { background:#FCBE28; color:black; }
+.badge.manage  { background:#1a1a1a; color:#FCBE28; border:1px solid #FCBE28; }
+.badge.branch  { background:#111; color:#888; border:1px solid #333; }
+.edit_link { color:#FCBE28; font-size:13px; text-decoration:none; }
+.edit_link:hover { text-decoration:underline; }
+</style>
+{% endblock %}

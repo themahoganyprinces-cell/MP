@@ -1,0 +1,220 @@
+main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Hero */
+#decree-hero {
+    text-align: center;
+    padding: 60px 20px 30px;
+}
+
+#decree-title {
+    font-size: 64px;
+    font-weight: 900;
+    color: #FCBE28;
+    margin: 0;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+#decree-subtitle {
+    font-size: 20px;
+    color: #aaa;
+    margin-top: 8px;
+    letter-spacing: 1px;
+}
+
+/* Section blocks */
+.decree-block {
+    padding: 50px 0;
+}
+
+.block-heading {
+    font-size: 36px;
+    color: #FCBE28;
+    text-align: center;
+    margin-bottom: 30px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.block-body {
+    color: white;
+    font-size: 18px;
+    line-height: 1.8;
+}
+
+.centered-text {
+    text-align: center;
+    max-width: 720px;
+    margin: 0 auto;
+}
+
+.centered-text p {
+    margin-bottom: 20px;
+    color: white;
+}
+
+.gold {
+    color: #FCBE28;
+    font-weight: bold;
+}
+
+.decree-quote {
+    font-size: 22px;
+    font-style: italic;
+    color: white !important;
+    border-left: 4px solid #FCBE28;
+    border-right: 4px solid #FCBE28;
+    padding: 16px 24px;
+    margin: 30px auto !important;
+    max-width: 560px;
+}
+
+.signature {
+    color: #aaa !important;
+    font-size: 16px;
+    margin-top: 10px !important;
+}
+
+.brand-motto {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 900;
+    color: #FCBE28;
+    letter-spacing: 3px;
+    margin-top: 40px;
+    text-shadow: 0 0 20px rgba(252, 190, 40, 0.4);
+}
+
+/* Gold divider */
+.gold-divider {
+    height: 1px;
+    background: linear-gradient(to right, transparent, #FCBE28, transparent);
+    margin: 0 auto;
+    max-width: 600px;
+}
+
+/* Pillars */
+.pillar-intro {
+    color: #ccc;
+    text-align: center;
+    font-size: 17px;
+    margin-bottom: 36px;
+}
+
+.pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.pillar-card {
+    background: radial-gradient(circle at top left, #1a0030, #0a0012);
+    border: 1px solid #4B007D;
+    border-radius: 12px;
+    padding: 28px 22px;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.pillar-card:hover {
+    border-color: #FCBE28;
+    transform: translateY(-4px);
+}
+
+.pillar-title {
+    color: #FCBE28;
+    font-size: 20px;
+    margin-bottom: 14px;
+    font-weight: bold;
+}
+
+.pillar-card p {
+    color: #ccc;
+    font-size: 15px;
+    line-height: 1.7;
+    margin: 0;
+}
+
+/* ICARE Values */
+#icare {
+    text-align: center;
+}
+
+.icare-label {
+    font-size: 80px;
+    font-weight: 900;
+    color: #4B007D;
+    letter-spacing: 8px;
+    text-shadow: 0 0 30px rgba(75, 0, 125, 0.6);
+    margin-bottom: 40px;
+    line-height: 1;
+}
+
+.values-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    max-width: 440px;
+    margin: 0 auto;
+}
+
+.value-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    background: linear-gradient(to right, #0a0012, #150025);
+    border-left: 4px solid #FCBE28;
+    padding: 14px 24px;
+    border-radius: 0 8px 8px 0;
+}
+
+.value-letter {
+    font-size: 32px;
+    font-weight: 900;
+    color: #FCBE28;
+    min-width: 36px;
+}
+
+.value-word {
+    font-size: 22px;
+    color: white;
+    letter-spacing: 1px;
+}
+
+/* Closing */
+#decree-closing {
+    text-align: center;
+    padding: 60px 20px;
+    font-size: 20px;
+    color: #ccc;
+    line-height: 1.8;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+#decree-closing p {
+    color: #ccc;
+}
+
+/* Active nav state */
+.navbutton.active {
+    color: #FCBE28;
+    border-bottom: 2px solid #FCBE28;
+}
+
+@media (max-width: 700px) {
+    .pillars-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #decree-title {
+        font-size: 40px;
+    }
+
+    .icare-label {
+        font-size: 52px;
+    }
+}

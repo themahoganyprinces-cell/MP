@@ -1,0 +1,36 @@
+<!DOCtype html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width initial-scale=1.0">
+        <link rel="icon" href="{{ url_for('static', filename='PNG/CMDlogo.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='CMDstyle.css') }}">
+        <script src="https://kit.fontawesome.com/d303cba5a4.js" crossorigin="anonymous"></script>
+
+        {% block head %}
+        {% endblock %}
+    </head>
+    <body>
+        <nav>
+            <div id="navbrand">
+                <img id="navicon" src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="Crown Mahogany Detailing logo" width="50" height="50">
+
+            </div>
+            <div id="navlinks">
+                <a class="navbutton" id="Homebutton" href="{{ url_for('home') }}">Home</a>
+                <a class="navbutton" id="Formulabutton" href="{{ url_for('formula') }}">The Royal Formula</a>
+                <a class="navbutton" id="Service" href="{{ url_for('services') }}">Service Menu</a>
+                <a class="navbutton" id="Contactbutton" href="{{ url_for('contact') }}">Contact Us</a>
+            </div>
+            <div id="actionbutton">
+                <a href="{{ url_for('book') }}">Book Now</a>
+            </div>
+        </nav>
+        {% block content %}
+        
+        {% endblock %}
+        <footer>
+
+        </footer>
+    </body>
+</html>

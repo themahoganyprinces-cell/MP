@@ -1,0 +1,145 @@
+#dash_page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+#dash_header { margin-bottom: 32px; }
+#dash_header h1 { margin: 0 0 4px; font-size: 26px; color: #FCBE28; }
+.dash_sub { color: #888; margin: 0; font-size: 14px; }
+
+.section_title {
+    font-size: 18px;
+    color: #FCBE28;
+    margin: 0 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.badge {
+    background: #FCBE28;
+    color: black;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: 12px;
+    padding: 2px 8px;
+}
+
+/* ── Offers ─────────────────────────────────────────────────────── */
+#offers_section { margin-bottom: 40px; }
+
+#offers_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.offer_card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s;
+}
+.offer_card:hover { border-color: #FCBE28; }
+
+.offer_top {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.offer_date { color: #FCBE28; font-weight: bold; font-size: 14px; }
+.offer_time { color: #aaa; font-size: 13px; }
+.offer_id   { color: #555; font-size: 11px; margin-left: auto; }
+
+.offer_detail p { margin: 2px 0; font-size: 14px; color: #ccc; }
+.offer_service  { color: white; font-weight: bold; }
+
+.offer_actions {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.btn_accept {
+    background: #FCBE28;
+    color: black;
+    border: none;
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.btn_accept:hover { background: #e0a800; }
+
+.deny_form {
+    display: flex;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+.deny_select {
+    flex: 1;
+    background: #1a1a1a;
+    color: #ccc;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 6px 8px;
+    font-size: 12px;
+    min-width: 0;
+}
+.deny_select:focus { border-color: #FCBE28; outline: none; }
+
+.btn_deny {
+    background: transparent;
+    color: #888;
+    border: 1px solid #444;
+    padding: 8px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+.btn_deny:hover { border-color: #c0392b; color: #c0392b; }
+
+.empty_state {
+    background: #111;
+    border: 1px dashed #2a2a2a;
+    border-radius: 8px;
+    padding: 32px;
+    text-align: center;
+    color: #555;
+}
+
+/* ── Quick Links ─────────────────────────────────────────────────── */
+#quick_links {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.quick_card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px 16px;
+    text-align: center;
+    text-decoration: none;
+    color: #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    transition: border-color 0.2s, color 0.2s;
+}
+.quick_card:hover { border-color: #FCBE28; color: #FCBE28; }
+.quick_icon { font-size: 24px; color: #FCBE28; }

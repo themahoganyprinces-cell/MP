@@ -1,0 +1,937 @@
+{% extends "CMDmanage.html" %}
+
+{% block head %}
+<style>
+  .msection {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    margin-bottom: 28px;
+    overflow: hidden;
+  }
+  .msection-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .msection-title {
+    color: #FCBE28;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  /* Positions */
+  .pos-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 18px 24px;
+    align-items: center;
+  }
+  .pos-pill {
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pos-pill-name { color: #FCBE28; font-size: 14px; }
+  .pos-rename-form { display: none; }
+  .pos-rename-form.open { display: flex; gap: 6px; align-items: center; }
+  .pos-rename-input {
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .pos-rename-input:focus { outline: none; border-color: #FCBE28; }
+
+  /* Expandable rows */
+  .svc-row { border-bottom: 1px solid #1e1e1e; }
+  .svc-row:last-child { border-bottom: none; }
+  .svc-row-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .svc-row-header:hover { background: #161616; }
+  .svc-name { color: white; font-size: 15px; font-weight: 500; }
+  .svc-meta { display: flex; gap: 10px; align-items: center; }
+  .svc-badge {
+    background: #1e1e1e;
+    color: #999;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 10px;
+    border: 1px solid #2a2a2a;
+  }
+  .svc-badge.duo-only { color: #FCBE28; border-color: #5a4510; background: #1f1800; }
+  .svc-expand-btn {
+    background: none;
+    border: 1px solid #333;
+    color: #999;
+    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+  .svc-expand-btn:hover { color: #FCBE28; border-color: #FCBE28; }
+
+  /* Edit panel */
+  .svc-edit-panel {
+    display: none;
+    padding: 20px 24px 24px;
+    background: #0d0d0d;
+    border-top: 1px solid #1e1e1e;
+  }
+  .svc-edit-panel.open { display: block; }
+
+  /* Form helpers */
+  .fg { margin-bottom: 14px; }
+  .fg label {
+    display: block;
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .fg input[type="text"],
+  .fg input[type="number"],
+  .fg textarea,
+  .fg select {
+    width: 100%;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+    transition: border-color 0.15s;
+  }
+  .fg input:focus, .fg textarea:focus, .fg select:focus {
+    outline: none;
+    border-color: #FCBE28;
+  }
+  .fg textarea { resize: vertical; min-height: 70px; }
+  .fg-row { display: flex; gap: 14px; margin-bottom: 14px; }
+  .fg-row .fg { flex: 1; margin-bottom: 0; }
+  .fg-check { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+  .fg-check input[type="checkbox"] { accent-color: #FCBE28; width: 15px; height: 15px; cursor: pointer; }
+  .fg-check label {
+    color: #bbb; font-size: 13px; text-transform: none;
+    letter-spacing: 0; margin: 0; cursor: pointer;
+  }
+
+  /* Pay rates */
+  .pay-section { margin: 16px 0 14px; }
+  .pay-section-label {
+    color: #555;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .pay-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .pay-row select,
+  .pay-row input[type="number"] {
+    flex: 1;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .pay-row select:focus,
+  .pay-row input[type="number"]:focus { outline: none; border-color: #FCBE28; }
+  .btn-remove-pay {
+    background: none;
+    border: 1px solid #441111;
+    color: #c0392b;
+    border-radius: 4px;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-remove-pay:hover { background: #1e0000; }
+  .btn-add-pay {
+    background: none;
+    border: 1px solid #3a3000;
+    color: #FCBE28;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 12px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+  .btn-add-pay:hover { background: #1a1400; }
+
+  /* Action buttons */
+  .edit-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid #1e1e1e;
+    flex-wrap: wrap;
+  }
+  .mbtn {
+    padding: 9px 20px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+    font-family: inherit;
+    transition: background 0.15s;
+  }
+  .mbtn-gold { background: #FCBE28; color: black; }
+  .mbtn-gold:hover { background: #e0a800; }
+  .mbtn-danger { background: #c0392b; color: white; }
+  .mbtn-danger:hover { background: #a93226; }
+  .mbtn-outline { background: none; border: 1px solid #333; color: #999; }
+  .mbtn-outline:hover { border-color: #FCBE28; color: #FCBE28; }
+  .mbtn-sm { padding: 6px 14px; font-size: 12px; }
+
+  /* Add-new panel */
+  .add-panel {
+    background: #0d0d0d;
+    border-top: 2px solid #2a2a2a;
+    padding: 20px 24px 24px;
+  }
+  .add-panel-title {
+    color: #555;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  /* Add-ons rows */
+  .addon-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 24px;
+    border-bottom: 1px solid #1a1a1a;
+  }
+  .addon-row:last-child { border-bottom: none; }
+  .addon-row .addon-name { flex: 2; color: white; font-size: 14px; }
+  .addon-row .addon-field { flex: 1; }
+  .addon-row .addon-field input {
+    width: 100%;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .addon-row .addon-field input:focus { outline: none; border-color: #FCBE28; }
+  .addon-row .addon-name-input {
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 7px 10px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .addon-row .addon-name-input:focus { outline: none; border-color: #FCBE28; }
+
+  /* Utility */
+  .btn-icon {
+    background: none;
+    border: 1px solid #2a2a2a;
+    color: #666;
+    border-radius: 4px;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .btn-icon:hover { color: #FCBE28; border-color: #FCBE28; }
+  .btn-icon.danger:hover { color: #c0392b; border-color: #c0392b; }
+  .section-empty { color: #444; font-size: 13px; padding: 20px 24px; font-style: italic; }
+  .solo-block { }
+  .saved-bar {
+    background: #0f2e0f; border: 1px solid #1e5c1e; color: #5cb85c;
+    padding: 10px 20px; border-radius: 6px; margin-bottom: 18px; font-size: 13px;
+  }
+  .msg-bar {
+    background: #1a1400; border: 1px solid #5a4510; color: #FCBE28;
+    padding: 10px 20px; border-radius: 6px; margin-bottom: 18px; font-size: 13px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+{% if saved %}
+<div class="saved-bar"><i class="fa-solid fa-check"></i> Changes saved.</div>
+{% endif %}
+{% if msg %}
+<div class="msg-bar"><i class="fa-solid fa-circle-info"></i> {{ msg }}</div>
+{% endif %}
+
+{# ── Categories (founder only) ──────────────────────────────────────────────── #}
+{% if is_founder %}
+<div class="msection">
+  <div class="msection-header">
+    <span class="msection-title"><i class="fa-solid fa-tags"></i> Categories</span>
+  </div>
+  <div class="pos-list">
+    {% for cat in categories %}
+    <div class="pos-pill">
+      <span class="pos-pill-name" id="cat_label_{{ loop.index }}">{{ cat }}</span>
+      <button type="button" class="btn-icon" title="Rename"
+              onclick="toggleCatRename({{ loop.index }}, '{{ cat | e }}')">
+        <i class="fa-solid fa-pencil"></i>
+      </button>
+      <form method="POST" style="display:inline;"
+            onsubmit="return confirm('Remove category {{ cat }}? Services using it will keep their old value.')">
+        <input type="hidden" name="action" value="delete_category">
+        <input type="hidden" name="category" value="{{ cat }}">
+        <button type="submit" class="btn-icon danger" title="Remove category">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </form>
+      <form method="POST" class="pos-rename-form" id="cat_rename_form_{{ loop.index }}">
+        <input type="hidden" name="action" value="rename_category">
+        <input type="hidden" name="old_category" value="{{ cat }}">
+        <input class="pos-rename-input" type="text" name="renamed_category"
+               id="cat_rename_input_{{ loop.index }}" value="{{ cat }}" style="width:110px;">
+        <button type="submit" class="btn-icon" title="Confirm rename">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button type="button" class="btn-icon"
+                onclick="toggleCatRename({{ loop.index }}, '{{ cat | e }}')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+
+    <form method="POST" style="display:flex; gap:6px; align-items:center;">
+      <input type="hidden" name="action" value="add_category">
+      <input class="pos-rename-input" type="text" name="new_category"
+             placeholder="New category…" required style="min-width:130px;">
+      <button type="submit" class="btn-icon" title="Add category">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </form>
+  </div>
+</div>
+{% endif %}
+
+{# ── Positions ─────────────────────────────────────────────────────────────── #}
+<div class="msection">
+  <div class="msection-header">
+    <span class="msection-title"><i class="fa-solid fa-id-badge"></i> Positions</span>
+  </div>
+  <div class="pos-list">
+    {% for pos in positions %}
+    <div class="pos-pill">
+      <span class="pos-pill-name" id="pos_label_{{ loop.index }}">{{ pos }}</span>
+      <button type="button" class="btn-icon" title="Rename"
+              onclick="toggleRename({{ loop.index }}, '{{ pos | e }}')">
+        <i class="fa-solid fa-pencil"></i>
+      </button>
+      {% if positions | length > 1 %}
+      <form method="POST" style="display:inline;"
+            onsubmit="return confirm('Remove {{ pos }} and its rates from all services?')">
+        <input type="hidden" name="action" value="delete_position">
+        <input type="hidden" name="position" value="{{ pos }}">
+        <button type="submit" class="btn-icon danger" title="Remove position">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </form>
+      {% endif %}
+      <form method="POST" class="pos-rename-form" id="rename_form_{{ loop.index }}">
+        <input type="hidden" name="action" value="rename_position">
+        <input type="hidden" name="old_position" value="{{ pos }}">
+        <input class="pos-rename-input" type="text" name="renamed_position"
+               id="rename_input_{{ loop.index }}" value="{{ pos }}" placeholder="{{ pos }}"
+               style="width:110px;">
+        <button type="submit" class="btn-icon" title="Confirm rename">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <button type="button" class="btn-icon"
+                onclick="toggleRename({{ loop.index }}, '{{ pos | e }}')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </form>
+    </div>
+    {% endfor %}
+
+    <form method="POST" style="display:flex; gap:6px; align-items:center;">
+      <input type="hidden" name="action" value="add_position">
+      <input class="pos-rename-input" type="text" name="new_position"
+             placeholder="New position…" required style="min-width:130px;">
+      <button type="submit" class="btn-icon" title="Add position">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </form>
+  </div>
+</div>
+
+{# ── Services ──────────────────────────────────────────────────────────────── #}
+<div class="msection">
+  <div class="msection-header">
+    <span class="msection-title"><i class="fa-solid fa-car"></i> Services</span>
+  </div>
+
+  {% if services %}
+    {% for svc_name, svc in services.items() %}
+    <div class="svc-row">
+      <div class="svc-row-header" onclick="toggleEdit('svc{{ loop.index }}')">
+        <span class="svc-name">{{ svc_name }}</span>
+        <div class="svc-meta">
+          {% if svc.get('duo_only') %}<span class="svc-badge duo-only">Duo Only</span>{% endif %}
+          {% if svc.get('category') %}<span class="svc-badge">{{ svc.category }}</span>{% endif %}
+          {% if svc.get('pay_rates') %}<span class="svc-badge">{{ svc.pay_rates | length }} rate(s)</span>{% endif %}
+          <button type="button" class="svc-expand-btn" id="svc{{ loop.index }}_btn">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="svc-edit-panel" id="svc{{ loop.index }}">
+        <form method="POST">
+          <input type="hidden" name="action" value="update_service">
+          <input type="hidden" name="orig_name" value="{{ svc_name }}">
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Service Name</label>
+              <input type="text" name="name" value="{{ svc_name }}" required>
+            </div>
+            <div class="fg">
+              <label>Category</label>
+              <select name="category">
+                <option value="">— None —</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if svc.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Description</label>
+            <textarea name="description">{{ svc.get('description', '') }}</textarea>
+          </div>
+
+          <div class="fg-check">
+            <input type="checkbox" name="duo_only" id="duo_svc{{ loop.index }}"
+                   {% if svc.get('duo_only') %}checked{% endif %}
+                   onchange="toggleSolo('solo_svc{{ loop.index }}', this)">
+            <label for="duo_svc{{ loop.index }}">Duo Only — no solo option for this service</label>
+          </div>
+
+          <div class="solo-block" id="solo_svc{{ loop.index }}"
+               {% if svc.get('duo_only') %}style="display:none"{% endif %}>
+            <div class="fg-row">
+              <div class="fg">
+                <label>Solo Price ($)</label>
+                <input type="number" name="solo_price" step="0.01" min="0"
+                       value="{{ svc.get('solo_price', '') }}">
+              </div>
+              <div class="fg">
+                <label>Solo Duration (min)</label>
+                <input type="number" name="solo_duration" min="0"
+                       value="{{ svc.get('solo_duration', '') }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Duo Price ($)</label>
+              <input type="number" name="duo_price" step="0.01" min="0"
+                     value="{{ svc.get('duo_price', '') }}">
+            </div>
+            <div class="fg">
+              <label>Duo Duration (min)</label>
+              <input type="number" name="duo_duration" min="0"
+                     value="{{ svc.get('duo_duration', '') }}">
+            </div>
+          </div>
+
+          <div class="pay-section">
+            <div class="pay-section-label">Employee Pay Rates</div>
+            <div id="payrows_svc{{ loop.index }}">
+              {% if svc.get('pay_rates') %}
+                {% for pay_pos, pay_rate in svc.pay_rates.items() %}
+                <div class="pay-row">
+                  <select name="pos_{{ loop.index0 }}">
+                    {% for p in positions %}
+                    <option value="{{ p }}" {% if p == pay_pos %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="number" name="pay_{{ loop.index0 }}" step="0.01" min="0"
+                         value="{{ pay_rate }}" placeholder="Pay ($)">
+                  <button type="button" class="btn-remove-pay"
+                          onclick="removePayRow(this)">&times;</button>
+                </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <script type="application/json" id="positions_svc{{ loop.index }}">{{ positions | tojson }}</script>
+            <button type="button" class="btn-add-pay"
+                    onclick="addPayRow('payrows_svc{{ loop.index }}', 'positions_svc{{ loop.index }}')">
+              <i class="fa-solid fa-plus"></i> Add Rate
+            </button>
+          </div>
+
+          <div class="edit-actions">
+            <button type="submit" class="mbtn mbtn-gold">Save Changes</button>
+            <button type="button" class="mbtn mbtn-outline"
+                    onclick="toggleEdit('svc{{ loop.index }}')">Cancel</button>
+          </div>
+        </form>
+
+        <form method="POST" style="margin-top:8px;"
+              onsubmit="return confirm('Delete {{ svc_name }}? This cannot be undone.')">
+          <input type="hidden" name="action" value="delete_service">
+          <input type="hidden" name="name" value="{{ svc_name }}">
+          <button type="submit" class="mbtn mbtn-danger mbtn-sm">Delete Service</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p class="section-empty">No services yet. Add one below.</p>
+  {% endif %}
+
+  <div class="add-panel">
+    <div class="add-panel-title"><i class="fa-solid fa-plus"></i> Add New Service</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="add_service">
+      <div class="fg-row">
+        <div class="fg">
+          <label>Service Name</label>
+          <input type="text" name="name" required placeholder="e.g. Deep Clean">
+        </div>
+        <div class="fg">
+          <label>Category</label>
+          <select name="category">
+            <option value="">— None —</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Description</label>
+        <textarea name="description" placeholder="Describe this service…"></textarea>
+      </div>
+      <div class="fg-check">
+        <input type="checkbox" name="duo_only" id="new_svc_duo"
+               onchange="toggleSolo('new_svc_solo', this)">
+        <label for="new_svc_duo">Duo Only — no solo option</label>
+      </div>
+      <div class="solo-block" id="new_svc_solo">
+        <div class="fg-row">
+          <div class="fg">
+            <label>Solo Price ($)</label>
+            <input type="number" name="solo_price" step="0.01" min="0">
+          </div>
+          <div class="fg">
+            <label>Solo Duration (min)</label>
+            <input type="number" name="solo_duration" min="0">
+          </div>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label>Duo Price ($)</label>
+          <input type="number" name="duo_price" step="0.01" min="0">
+        </div>
+        <div class="fg">
+          <label>Duo Duration (min)</label>
+          <input type="number" name="duo_duration" min="0">
+        </div>
+      </div>
+      <div class="pay-section">
+        <div class="pay-section-label">Employee Pay Rates</div>
+        <div id="payrows_new_svc"></div>
+        <script type="application/json" id="positions_new_svc">{{ positions | tojson }}</script>
+        <button type="button" class="btn-add-pay"
+                onclick="addPayRow('payrows_new_svc', 'positions_new_svc')">
+          <i class="fa-solid fa-plus"></i> Add Rate
+        </button>
+      </div>
+      <div class="edit-actions">
+        <button type="submit" class="mbtn mbtn-gold">Add Service</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Packages ──────────────────────────────────────────────────────────────── #}
+<div class="msection">
+  <div class="msection-header">
+    <span class="msection-title"><i class="fa-solid fa-box-open"></i> Packages</span>
+  </div>
+
+  {% if packages %}
+    {% for pkg_name, pkg in packages.items() %}
+    <div class="svc-row">
+      <div class="svc-row-header" onclick="toggleEdit('pkg{{ loop.index }}')">
+        <span class="svc-name">{{ pkg_name }}</span>
+        <div class="svc-meta">
+          {% if pkg.get('duo_only') %}<span class="svc-badge duo-only">Duo Only</span>{% endif %}
+          {% if pkg.get('pay_rates') %}<span class="svc-badge">{{ pkg.pay_rates | length }} rate(s)</span>{% endif %}
+          <button type="button" class="svc-expand-btn" id="pkg{{ loop.index }}_btn">
+            <i class="fa-solid fa-chevron-down"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="svc-edit-panel" id="pkg{{ loop.index }}">
+        <form method="POST">
+          <input type="hidden" name="action" value="update_package">
+          <input type="hidden" name="orig_name" value="{{ pkg_name }}">
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Package Name</label>
+              <input type="text" name="name" value="{{ pkg_name }}" required>
+            </div>
+            <div class="fg">
+              <label>Category</label>
+              <select name="category">
+                <option value="">— None —</option>
+                {% for cat in categories %}
+                <option value="{{ cat }}" {% if pkg.get('category') == cat %}selected{% endif %}>{{ cat }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+
+          <div class="fg">
+            <label>Description</label>
+            <textarea name="description">{{ pkg.get('description', '') }}</textarea>
+          </div>
+
+          <div class="fg-check">
+            <input type="checkbox" name="duo_only" id="duo_pkg{{ loop.index }}"
+                   {% if pkg.get('duo_only') %}checked{% endif %}
+                   onchange="toggleSolo('solo_pkg{{ loop.index }}', this)">
+            <label for="duo_pkg{{ loop.index }}">Duo Only — no solo option for this package</label>
+          </div>
+
+          <div class="solo-block" id="solo_pkg{{ loop.index }}"
+               {% if pkg.get('duo_only') %}style="display:none"{% endif %}>
+            <div class="fg-row">
+              <div class="fg">
+                <label>Solo Price ($)</label>
+                <input type="number" name="solo_price" step="0.01" min="0"
+                       value="{{ pkg.get('solo_price', '') }}">
+              </div>
+              <div class="fg">
+                <label>Solo Duration (min)</label>
+                <input type="number" name="solo_duration" min="0"
+                       value="{{ pkg.get('solo_duration', '') }}">
+              </div>
+            </div>
+          </div>
+
+          <div class="fg-row">
+            <div class="fg">
+              <label>Duo Price ($)</label>
+              <input type="number" name="duo_price" step="0.01" min="0"
+                     value="{{ pkg.get('duo_price', '') }}">
+            </div>
+            <div class="fg">
+              <label>Duo Duration (min)</label>
+              <input type="number" name="duo_duration" min="0"
+                     value="{{ pkg.get('duo_duration', '') }}">
+            </div>
+          </div>
+
+          <div class="pay-section">
+            <div class="pay-section-label">Employee Pay Rates</div>
+            <div id="payrows_pkg{{ loop.index }}">
+              {% if pkg.get('pay_rates') %}
+                {% for pay_pos, pay_rate in pkg.pay_rates.items() %}
+                <div class="pay-row">
+                  <select name="pos_{{ loop.index0 }}">
+                    {% for p in positions %}
+                    <option value="{{ p }}" {% if p == pay_pos %}selected{% endif %}>{{ p }}</option>
+                    {% endfor %}
+                  </select>
+                  <input type="number" name="pay_{{ loop.index0 }}" step="0.01" min="0"
+                         value="{{ pay_rate }}" placeholder="Pay ($)">
+                  <button type="button" class="btn-remove-pay"
+                          onclick="removePayRow(this)">&times;</button>
+                </div>
+                {% endfor %}
+              {% endif %}
+            </div>
+            <script type="application/json" id="positions_pkg{{ loop.index }}">{{ positions | tojson }}</script>
+            <button type="button" class="btn-add-pay"
+                    onclick="addPayRow('payrows_pkg{{ loop.index }}', 'positions_pkg{{ loop.index }}')">
+              <i class="fa-solid fa-plus"></i> Add Rate
+            </button>
+          </div>
+
+          <div class="edit-actions">
+            <button type="submit" class="mbtn mbtn-gold">Save Changes</button>
+            <button type="button" class="mbtn mbtn-outline"
+                    onclick="toggleEdit('pkg{{ loop.index }}')">Cancel</button>
+          </div>
+        </form>
+
+        <form method="POST" style="margin-top:8px;"
+              onsubmit="return confirm('Delete {{ pkg_name }}? This cannot be undone.')">
+          <input type="hidden" name="action" value="delete_package">
+          <input type="hidden" name="name" value="{{ pkg_name }}">
+          <button type="submit" class="mbtn mbtn-danger mbtn-sm">Delete Package</button>
+        </form>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p class="section-empty">No packages yet. Add one below.</p>
+  {% endif %}
+
+  <div class="add-panel">
+    <div class="add-panel-title"><i class="fa-solid fa-plus"></i> Add New Package</div>
+    <form method="POST">
+      <input type="hidden" name="action" value="add_package">
+      <div class="fg-row">
+        <div class="fg">
+          <label>Package Name</label>
+          <input type="text" name="name" required placeholder="e.g. Ultimate Package">
+        </div>
+        <div class="fg">
+          <label>Category</label>
+          <select name="category">
+            <option value="">— None —</option>
+            {% for cat in categories %}
+            <option value="{{ cat }}">{{ cat }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Description</label>
+        <textarea name="description" placeholder="Describe this package…"></textarea>
+      </div>
+      <div class="fg-check">
+        <input type="checkbox" name="duo_only" id="new_pkg_duo"
+               onchange="toggleSolo('new_pkg_solo', this)">
+        <label for="new_pkg_duo">Duo Only — no solo option</label>
+      </div>
+      <div class="solo-block" id="new_pkg_solo">
+        <div class="fg-row">
+          <div class="fg">
+            <label>Solo Price ($)</label>
+            <input type="number" name="solo_price" step="0.01" min="0">
+          </div>
+          <div class="fg">
+            <label>Solo Duration (min)</label>
+            <input type="number" name="solo_duration" min="0">
+          </div>
+        </div>
+      </div>
+      <div class="fg-row">
+        <div class="fg">
+          <label>Duo Price ($)</label>
+          <input type="number" name="duo_price" step="0.01" min="0">
+        </div>
+        <div class="fg">
+          <label>Duo Duration (min)</label>
+          <input type="number" name="duo_duration" min="0">
+        </div>
+      </div>
+      <div class="pay-section">
+        <div class="pay-section-label">Employee Pay Rates</div>
+        <div id="payrows_new_pkg"></div>
+        <script type="application/json" id="positions_new_pkg">{{ positions | tojson }}</script>
+        <button type="button" class="btn-add-pay"
+                onclick="addPayRow('payrows_new_pkg', 'positions_new_pkg')">
+          <i class="fa-solid fa-plus"></i> Add Rate
+        </button>
+      </div>
+      <div class="edit-actions">
+        <button type="submit" class="mbtn mbtn-gold">Add Package</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{# ── Add-ons ───────────────────────────────────────────────────────────────── #}
+<div class="msection">
+  <div class="msection-header">
+    <span class="msection-title"><i class="fa-solid fa-circle-plus"></i> Add-ons</span>
+  </div>
+
+  {% if addons %}
+    <div style="padding: 4px 24px 2px; display:flex; gap:12px; align-items:center; border-bottom:1px solid #1a1a1a;">
+      <span style="flex:2; color:#555; font-size:11px; text-transform:uppercase; letter-spacing:0.5px; padding:8px 0;">Name</span>
+      <span style="flex:1; color:#555; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Price ($)</span>
+      <span style="flex:1; color:#555; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Duration (min)</span>
+      <span style="width:110px;"></span>
+    </div>
+    {% for addon_name, addon in addons.items() %}
+    <div class="addon-row">
+      <form method="POST" style="display:contents;">
+        <input type="hidden" name="action" value="update_addon">
+        <input type="hidden" name="orig_name" value="{{ addon_name }}">
+        <div class="addon-field" style="flex:2;">
+          <input class="addon-name-input" type="text" name="name" value="{{ addon_name }}" required>
+        </div>
+        <div class="addon-field">
+          <input type="number" name="price" step="0.01" min="0" value="{{ addon.get('price', '') }}">
+        </div>
+        <div class="addon-field">
+          <input type="number" name="duration" min="0" value="{{ addon.get('duration', '') }}">
+        </div>
+        <div style="display:flex; gap:6px; width:110px; flex-shrink:0;">
+          <button type="submit" class="mbtn mbtn-gold mbtn-sm">Save</button>
+      </form>
+      <form method="POST"
+            onsubmit="return confirm('Delete {{ addon_name }}?')" style="display:inline;">
+        <input type="hidden" name="action" value="delete_addon">
+        <input type="hidden" name="name" value="{{ addon_name }}">
+          <button type="submit" class="mbtn mbtn-danger mbtn-sm">Delete</button>
+      </form>
+        </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <p class="section-empty">No add-ons yet. Add one below.</p>
+  {% endif %}
+
+  <div class="add-panel">
+    <div class="add-panel-title"><i class="fa-solid fa-plus"></i> Add New Add-on</div>
+    <form method="POST" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+      <input type="hidden" name="action" value="add_addon">
+      <div class="fg" style="margin:0; flex:2; min-width:160px;">
+        <label>Name</label>
+        <input type="text" name="name" required placeholder="e.g. Seat Protectant">
+      </div>
+      <div class="fg" style="margin:0; flex:1; min-width:100px;">
+        <label>Price ($)</label>
+        <input type="number" name="price" step="0.01" min="0" placeholder="0.00">
+      </div>
+      <div class="fg" style="margin:0; flex:1; min-width:100px;">
+        <label>Duration (min)</label>
+        <input type="number" name="duration" min="0" placeholder="0">
+      </div>
+      <button type="submit" class="mbtn mbtn-gold" style="align-self:flex-end;">Add Add-on</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function toggleEdit(id) {
+    const panel = document.getElementById(id);
+    const btn   = document.getElementById(id + '_btn');
+    if (!panel) return;
+    const open = panel.classList.toggle('open');
+    if (btn) {
+      btn.innerHTML = open
+        ? '<i class="fa-solid fa-chevron-up"></i>'
+        : '<i class="fa-solid fa-chevron-down"></i>';
+    }
+  }
+
+  function toggleSolo(blockId, checkbox) {
+    const el = document.getElementById(blockId);
+    if (el) el.style.display = checkbox.checked ? 'none' : '';
+  }
+
+  function toggleRename(idx, pos) {
+    const form  = document.getElementById('rename_form_' + idx);
+    const label = document.getElementById('pos_label_' + idx);
+    if (!form) return;
+    const opening = !form.classList.contains('open');
+    form.classList.toggle('open', opening);
+    if (label) label.style.display = opening ? 'none' : '';
+    if (opening) {
+      const inp = document.getElementById('rename_input_' + idx);
+      if (inp) inp.focus();
+    }
+  }
+
+  function toggleCatRename(idx, cat) {
+    const form  = document.getElementById('cat_rename_form_' + idx);
+    const label = document.getElementById('cat_label_' + idx);
+    if (!form) return;
+    const opening = !form.classList.contains('open');
+    form.classList.toggle('open', opening);
+    if (label) label.style.display = opening ? 'none' : '';
+    if (opening) {
+      const inp = document.getElementById('cat_rename_input_' + idx);
+      if (inp) inp.focus();
+    }
+  }
+
+  function addPayRow(containerId, positionsScriptId) {
+    const container = document.getElementById(containerId);
+    const positions = JSON.parse(document.getElementById(positionsScriptId).textContent);
+    if (!container) return;
+    const idx = container.querySelectorAll('.pay-row').length;
+    const opts = positions.map(p => `<option value="${p}">${p}</option>`).join('');
+    const row = document.createElement('div');
+    row.className = 'pay-row';
+    row.innerHTML =
+      `<select name="pos_${idx}">${opts}</select>` +
+      `<input type="number" name="pay_${idx}" step="0.01" min="0" placeholder="Pay ($)">` +
+      `<button type="button" class="btn-remove-pay" onclick="removePayRow(this)">&times;</button>`;
+    container.appendChild(row);
+  }
+
+  function removePayRow(btn) {
+    const row = btn.closest('.pay-row');
+    const container = row.parentElement;
+    row.remove();
+    container.querySelectorAll('.pay-row').forEach((r, i) => {
+      const sel = r.querySelector('select');
+      const inp = r.querySelector('input[type="number"]');
+      if (sel) sel.name = `pos_${i}`;
+      if (inp) inp.name = `pay_${i}`;
+    });
+  }
+</script>
+
+{% endblock %}

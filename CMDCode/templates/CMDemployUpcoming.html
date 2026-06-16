@@ -1,0 +1,72 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDemployUpcomingstyle.css') }}">
+    <title>Upcoming Jobs — {{ employee_name }}</title>
+{% endblock %}
+{% block content %}
+<div id="upcoming_page">
+
+    <h1 id="upcoming_title">Upcoming Jobs</h1>
+
+    {% if upcoming %}
+    <section id="upcoming_section">
+        <h2 class="section_label">Scheduled</h2>
+        <div class="jobs_list">
+            {% for b in upcoming %}
+            <div class="job_card upcoming">
+                <div class="job_date_col">
+                    <span class="job_month">{{ b.date[5:7] }}/{{ b.date[8:10] }}</span>
+                    <span class="job_year">{{ b.date[:4] }}</span>
+                </div>
+                <div class="job_info">
+                    <p class="job_service">{{ b.service }}</p>
+                    <p class="job_car">{{ b.car }}</p>
+                    <p class="job_time"><i class="fa-regular fa-clock"></i> {{ b.start_time }}</p>
+                    <p class="job_customer"><i class="fa-regular fa-user"></i> {{ b.customer_name or 'N/A' }}</p>
+                    {% if b.customer_phone %}
+                    <p class="job_phone"><i class="fa-solid fa-phone"></i> {{ b.customer_phone }}</p>
+                    {% endif %}
+                </div>
+                <div class="job_meta">
+                    <span class="job_status status_{{ b.status|lower }}">{{ b.status }}</span>
+                    <span class="job_id">{{ b.appt_id }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% else %}
+    <div class="empty_state">
+        <p>No upcoming jobs yet. Accept a job offer from your Dashboard.</p>
+        <a href="{{ url_for('employee_dashboard') }}" class="go_link">Go to Dashboard →</a>
+    </div>
+    {% endif %}
+
+    {% if past %}
+    <section id="past_section">
+        <h2 class="section_label past_label">Past Jobs</h2>
+        <div class="jobs_list">
+            {% for b in past %}
+            <div class="job_card past">
+                <div class="job_date_col">
+                    <span class="job_month">{{ b.date[5:7] }}/{{ b.date[8:10] }}</span>
+                    <span class="job_year">{{ b.date[:4] }}</span>
+                </div>
+                <div class="job_info">
+                    <p class="job_service">{{ b.service }}</p>
+                    <p class="job_car">{{ b.car }}</p>
+                    <p class="job_time"><i class="fa-regular fa-clock"></i> {{ b.start_time }}</p>
+                    <p class="job_customer"><i class="fa-regular fa-user"></i> {{ b.customer_name or 'N/A' }}</p>
+                </div>
+                <div class="job_meta">
+                    <span class="job_status status_{{ b.status|lower }}">{{ b.status }}</span>
+                    <span class="job_id">{{ b.appt_id }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+#formulamenu{
+    width: 40px;
+    height: 100px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+th, td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #FCBE28;
+}
+
+th {
+    background-color: #333;
+    color: #FCBE28;
+    font-weight: bold;
+}
+
+tbody tr:hover {
+    background-color: #1a1a1a;
+}
+
+section {
+    margin-bottom: 30px;
+}
+
+h2{
+    border: solid #FCBE28 2px;
+    color: #FCBE28;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}

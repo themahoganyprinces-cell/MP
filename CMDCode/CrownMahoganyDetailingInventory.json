@@ -1,0 +1,210 @@
+{
+    "_category_meta": {
+        "Royal Foundations": {
+            "client_visible": true,
+            "employee_stock": false
+        },
+        "Royal Scents": {
+            "client_visible": true,
+            "employee_stock": false
+        },
+        "Additives": {
+            "client_visible": false,
+            "employee_stock": false
+        },
+        "Majestys Scents": {
+            "client_visible": true,
+            "employee_stock": false
+        },
+        "Signature Blends": {
+            "client_visible": true,
+            "employee_stock": false
+        },
+        "Equipment": {
+            "client_visible": true,
+            "employee_stock": false
+        }
+    },
+    "Royal Foundations": {
+        "Peppermint": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Eucalyptus": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Tea Tree": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Lavender": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Citrus": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Rose": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Almond": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Unscented": {
+            "Quantity": 0,
+            "Reserved": 0
+        }
+    },
+    "Royal Scents": {
+        "Peppermint": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Eucalyptus": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Cedarwood": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Orange": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Lemon": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Basil": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Almond": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Vanilla": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Sandalwood": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Rose": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Geranium": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Lavender": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Ylang-Ylang": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Tea Tree": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Lime": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Vetiver": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Bergamot": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Pine": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Frankincense": {
+            "Quantity": 0,
+            "Reserved": 0
+        }
+    },
+    "Additives": {
+        "Alcohol": {
+            "Quantity": 0
+        },
+        "Distilled Water": {
+            "Quantity": 0
+        }
+    },
+    "Majestys Scents": {
+        "Energy": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Luxury": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Nature": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Romance": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Zen": {
+            "Quantity": 0,
+            "Reserved": 0
+        }
+    },
+    "Signature Blends": {
+        "Mahogany Mint": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Citrus Crown": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Royal Almond": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "The Rose Seat": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Midnight Lavender": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Purity Detail": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Iron Breeze": {
+            "Quantity": 0,
+            "Reserved": 0
+        },
+        "Velvet Eucalyptus": {
+            "Quantity": 0,
+            "Reserved": 0
+        }
+    },
+    "Equipment": {
+        "Microfibers": {
+            "Quantity": 0,
+            "Reserved": 0
+        }
+    }
+}

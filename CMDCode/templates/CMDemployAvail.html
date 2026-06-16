@@ -1,0 +1,251 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDemployAvailstyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='calender/calender.css') }}">
+    <script src="{{ url_for('static', filename='calender/calender.js') }}" defer></script>
+{% endblock %}
+{% block content %}
+<div id="avail_page">
+
+    <aside id="avail_sidebar">
+        <ul>
+            <li class="avail_nav_item" id="nav_set">Set Availability</li>
+            <li class="avail_nav_item" id="nav_week">This Week's Availability</li>
+        </ul>
+    </aside>
+
+    <div id="avail_content">
+
+        <!-- Set Availability view (hidden until nav_set clicked) -->
+        <div id="set_avail_view" class="view hidden">
+            <div id="cal_wrapper">
+                <h2 id="cal_heading">Set Your Availability</h2>
+                <my-calendar id="CMD_colors"></my-calendar>
+                <p id="cal_hint">Select a day to set your available time slots.<br>
+                <span class="dot"></span> = day has availability saved</p>
+            </div>
+            <div id="slot_panel" class="hidden">
+                <h3 id="slot_date_label"></h3>
+                <div id="slot_grid"></div>
+                <div id="slot_actions">
+                    <button id="select_all">All</button>
+                    <button id="clear_all">Clear</button>
+                    <button id="save_avail">Save</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- This Week's Availability view (hidden until nav_week clicked) -->
+        <div id="week_view" class="view hidden">
+            <h2 id="week_heading">This Week's Availability</h2>
+            <div id="week_grid"></div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+// --- Time slots (9am–7pm, stored as HH:MM for backend) ---
+const TIME_SLOTS = [];
+for (let h = 9; h < 19; h++) {
+    for (let m of [0, 30]) {
+        TIME_SLOTS.push(`${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`);
+    }
+}
+TIME_SLOTS.push('19:00');
+
+function formatTime12(t) {
+    const [h, m] = t.split(':').map(Number);
+    const period = h >= 12 ? 'PM' : 'AM';
+    const hour   = h % 12 || 12;
+    return `${hour}:${String(m).padStart(2,'0')} ${period}`;
+}
+
+// --- Element refs ---
+const cal          = document.querySelector('my-calendar');
+const slotPanel    = document.getElementById('slot_panel');
+const slotGrid     = document.getElementById('slot_grid');
+const slotDateLabel = document.getElementById('slot_date_label');
+const saveBtn      = document.getElementById('save_avail');
+const selectAllBtn = document.getElementById('select_all');
+const clearAllBtn  = document.getElementById('clear_all');
+const weekGrid     = document.getElementById('week_grid');
+
+let currentDate = null;
+
+// --- View switching ---
+function showView(viewId, navId) {
+    document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
+    document.querySelectorAll('.avail_nav_item').forEach(n => n.classList.remove('active'));
+    document.getElementById(viewId).classList.remove('hidden');
+    document.getElementById(navId).classList.add('active');
+}
+
+document.getElementById('nav_set').addEventListener('click', () => {
+    showView('set_avail_view', 'nav_set');
+});
+
+document.getElementById('nav_week').addEventListener('click', () => {
+    showView('week_view', 'nav_week');
+    loadWeekView();
+});
+
+// --- This Week's Availability ---
+async function loadWeekView() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // back to Sunday
+
+    const DAY_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    weekGrid.innerHTML = '';
+
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(weekStart);
+        d.setDate(weekStart.getDate() + i);
+        const yyyy = d.getFullYear();
+        const mm   = String(d.getMonth() + 1).padStart(2, '0');
+        const dd   = String(d.getDate()).padStart(2, '0');
+        const dateStr = `${yyyy}-${mm}-${dd}`;
+
+        const res  = await fetch(`/employ/avail/data?date=${dateStr}`);
+        const data = await res.json();
+
+        const col = document.createElement('div');
+        col.classList.add('week_col');
+        if (d < today) col.classList.add('past_day');
+
+        const label = document.createElement('p');
+        label.classList.add('week_day_label');
+        label.textContent = `${DAY_NAMES[d.getDay()]} ${mm}/${dd}`;
+        col.appendChild(label);
+
+        if (data.slots.length === 0) {
+            const none = document.createElement('p');
+            none.classList.add('week_no_slots');
+            none.textContent = 'Off';
+            col.appendChild(none);
+        } else {
+            data.slots.forEach(slot => {
+                const s = document.createElement('p');
+                s.classList.add('week_slot');
+                s.textContent = formatTime12(slot);
+                col.appendChild(s);
+            });
+        }
+
+        weekGrid.appendChild(col);
+    }
+}
+
+// --- Set Availability logic ---
+let savedAvailDates = new Set();
+
+function applyAvailabilityDots() {
+    const monthYearEl = cal.querySelector('.month-year');
+    if (!monthYearEl) return;
+    const [monthName, yearStr] = monthYearEl.textContent.trim().split(' ');
+    const month = MONTH_NAMES.indexOf(monthName) + 1;
+    const year  = parseInt(yearStr);
+    cal.querySelectorAll('.day:not(.empty)').forEach(dayEl => {
+        const day = parseInt(dayEl.innerText);
+        if (isNaN(day)) return;
+        const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+        dayEl.classList.toggle('has-saved', savedAvailDates.has(dateStr));
+    });
+}
+
+async function loadMarkedDates() {
+    const res  = await fetch('/employ/avail/data');
+    const data = await res.json();
+    savedAvailDates = new Set(data.dates || []);
+    applyAvailabilityDots();
+}
+
+cal.addEventListener('dateSelected', async (e) => {
+    const { day, month, year } = e.detail;
+    const mm = String(month).padStart(2, '0');
+    const dd = String(day).padStart(2, '0');
+    currentDate = `${year}-${mm}-${dd}`;
+
+    slotDateLabel.textContent = currentDate;
+    slotPanel.classList.remove('hidden');
+    saveBtn.textContent = 'Save';
+
+    const res  = await fetch(`/employ/avail/data?date=${currentDate}`);
+    const data = await res.json();
+    const savedSlots = new Set(data.slots);
+
+    slotGrid.innerHTML = '';
+    for (const slot of TIME_SLOTS) {
+        const btn = document.createElement('button');
+        btn.textContent  = formatTime12(slot);
+        btn.dataset.time = slot;
+        btn.classList.add('slot_btn');
+        if (savedSlots.has(slot)) btn.classList.add('active');
+        btn.addEventListener('click', () => btn.classList.toggle('active'));
+        slotGrid.appendChild(btn);
+    }
+});
+
+selectAllBtn.addEventListener('click', () => {
+    slotGrid.querySelectorAll('.slot_btn').forEach(b => b.classList.add('active'));
+});
+clearAllBtn.addEventListener('click', () => {
+    slotGrid.querySelectorAll('.slot_btn').forEach(b => b.classList.remove('active'));
+});
+saveBtn.addEventListener('click', async () => {
+    const selected = [...slotGrid.querySelectorAll('.slot_btn.active')].map(b => b.dataset.time);
+    const res = await fetch('/employ/avail/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: currentDate, slots: selected })
+    });
+    if (res.ok) {
+        saveBtn.textContent = 'Saved!';
+        await loadMarkedDates();
+        setTimeout(() => saveBtn.textContent = 'Save', 1500);
+    }
+});
+
+// --- Past day blocking ---
+const MONTH_NAMES = ["January","February","March","April","May","June",
+                     "July","August","September","October","November","December"];
+
+function markPastDays() {
+    const monthYearEl = cal.querySelector('.month-year');
+    if (!monthYearEl) return;
+    const [monthName, yearStr] = monthYearEl.textContent.trim().split(' ');
+    const month = MONTH_NAMES.indexOf(monthName);
+    const year  = parseInt(yearStr);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    cal.querySelectorAll('.day:not(.empty)').forEach(dayEl => {
+        const day = parseInt(dayEl.innerText);
+        if (!isNaN(day) && new Date(year, month, day) < today) {
+            dayEl.classList.add('past');
+        }
+    });
+}
+
+cal.addEventListener('dateSelected', (e) => {
+    const { day, month, year } = e.detail;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (new Date(year, month - 1, day) < today) e.stopImmediatePropagation();
+}, { capture: true });
+
+function onCalRender() {
+    markPastDays();
+    applyAvailabilityDots();
+}
+
+const calObserver = new MutationObserver(onCalRender);
+
+customElements.whenDefined('my-calendar').then(() => {
+    calObserver.observe(cal, { childList: true, subtree: false });
+    markPastDays();
+    loadMarkedDates();
+});
+</script>
+{% endblock %}

@@ -1,0 +1,18 @@
+{
+  "positions": [
+    "Knight",
+    "Squire"
+  ],
+  "rates": {
+    "Glow Up (solo)": {
+      "Knight": 30.0
+    },
+    "Noble Detailing (solo)": {
+      "Knight": 30.0
+    },
+    "Royal Detailing (solo)": {
+      "Knight": 45.0
+    }
+  },
+  "note": "Employee pay per completed job by position. Updated by founder only."
+}

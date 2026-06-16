@@ -1,0 +1,47 @@
+main{
+    text-align: center;
+    margin-top: 20px;
+    align-items: center;
+}
+input, textarea{
+    text-align: center;
+    padding: 10px;
+    margin: 10px;
+    border: 1px solid #FCBE28;
+    border-radius: 5px;
+    width: 300px;
+    background-color: black;
+    color: #FCBE28;
+    outline: none;
+}
+input:focus, textarea:focus{
+    outline: 1px solid white;
+}
+textarea{
+    height: 100px;
+}
+button{
+    padding: 10px 20px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #FCBE28;;
+    color: black;
+    cursor: pointer;
+}
+button:hover{
+    background-color: #e0a800;
+}
+#formlogo{
+    margin-top: 20px;
+}
+#socialmedia{
+    margin-top: 20px;
+}
+.socialmedia_icon{
+    margin: 0 10px;
+    transition: transform 0.3s;
+}
+.socialmedia_icon:hover{    
+    transform: scale(1.2);
+}   

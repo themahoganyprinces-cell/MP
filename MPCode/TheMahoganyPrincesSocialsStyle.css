@@ -1,0 +1,26 @@
+#socialslist {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 50px;
+    color:#FCBE28;
+    font-size: 30px;
+    text-decoration: none;
+    list-style: none;
+}
+.socialslink {
+    color: #FCBE28;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    text-align: right;
+    gap: 10px;
+    transition: color 0.2s;
+    margin: 10px;
+    padding: 10px 20px;
+    border-radius: 5px;
+}
+.socialslink:hover {
+    color: #4B007D;
+}

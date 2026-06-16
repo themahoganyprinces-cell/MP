@@ -1,0 +1,92 @@
+#upcoming_page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 32px 24px;
+}
+
+#upcoming_title {
+    color: #FCBE28;
+    margin: 0 0 28px;
+    font-size: 24px;
+}
+
+.section_label {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #555;
+    margin: 0 0 12px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #1a1a1a;
+}
+.past_label { margin-top: 40px; }
+
+.jobs_list { display: flex; flex-direction: column; gap: 10px; }
+
+.job_card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    background: #111;
+    border: 1px solid #1e1e1e;
+    border-radius: 8px;
+    padding: 16px 20px;
+    transition: border-color 0.2s;
+}
+.job_card.upcoming { border-left: 3px solid #FCBE28; }
+.job_card.past     { border-left: 3px solid #333; opacity: 0.7; }
+.job_card:hover    { border-color: #FCBE28; opacity: 1; }
+
+.job_date_col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 52px;
+    background: #1a1a1a;
+    border-radius: 6px;
+    padding: 8px 10px;
+}
+.job_month { font-size: 18px; font-weight: bold; color: #FCBE28; }
+.job_year  { font-size: 11px; color: #555; }
+
+.job_info { flex: 1; }
+.job_info p { margin: 3px 0; font-size: 13px; color: #bbb; }
+.job_service { font-size: 15px; color: white; font-weight: bold; margin-bottom: 6px !important; }
+.job_car     { color: #aaa; }
+.job_time, .job_customer, .job_phone { color: #888; }
+.job_info i  { margin-right: 5px; color: #FCBE28; }
+
+.job_meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+}
+.job_status {
+    font-size: 11px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+}
+.status_pending   { background: #2a2200; color: #FCBE28; border: 1px solid #FCBE28; }
+.status_completed { background: #0d2200; color: #5cb85c; border: 1px solid #5cb85c; }
+.status_cancelled { background: #220000; color: #c0392b; border: 1px solid #c0392b; }
+.job_id { font-size: 11px; color: #444; }
+
+.empty_state {
+    background: #111;
+    border: 1px dashed #2a2a2a;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    color: #555;
+}
+.go_link {
+    display: inline-block;
+    margin-top: 12px;
+    color: #FCBE28;
+    text-decoration: none;
+    font-size: 14px;
+}
+.go_link:hover { text-decoration: underline; }

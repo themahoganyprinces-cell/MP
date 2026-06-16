@@ -1,0 +1,48 @@
+h2 {
+    color: #FCBE28;
+    font-size: 50px;
+}
+
+p {
+    color: white;
+}
+#focalpoint{
+    position:relative;
+
+}
+#focalpointimg{
+    position:absolute;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    opacity: 0.3;
+}
+h2{
+    position:relative;
+    z-index: 2;
+    margin:20px;
+}
+#mainstatement{
+    position:relative;
+    z-index: 2;
+    margin:40px;
+    align-self: flex-end;
+    padding:20px;
+    font-size: 30px;
+    text-align: center;
+    background: radial-gradient(circle closest-corner, #4B007D, #000000);
+}
+.goldtext{
+    color: #FCBE28;
+}
+#motto{
+    position:relative;
+    z-index: 2;
+    margin-left: 65px;
+    margin-top:100px;
+    font-size: 25px;
+    text-align: center;
+    color:#FCBE28;
+    
+    
+}   

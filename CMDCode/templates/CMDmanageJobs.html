@@ -1,0 +1,200 @@
+{% extends "CMDmanage.html" %}
+{% block head %}<title>Jobs — Manage</title>{% endblock %}
+{% block content %}
+
+<h1 class="page_title">Jobs</h1>
+
+<!-- ── Filter bar ────────────────────────────────────────────────── -->
+<div class="filter_bar">
+    {% set statuses = [('all','All'), ('pending','Pending'), ('confirmed','Confirmed'),
+                       ('completed','Completed'), ('cancelled','Cancelled')] %}
+    {% for val, label in statuses %}
+    <a href="{{ url_for('manage_jobs', status=val) }}"
+       class="filter_pill {% if status_filter == val %}active{% endif %}">{{ label }}</a>
+    {% endfor %}
+</div>
+
+<!-- ── Danger alerts ─────────────────────────────────────────────── -->
+{% set danger_jobs = jobs | selectattr('danger') | list %}
+{% if danger_jobs %}
+<div class="alert_banner">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <span><strong>{{ danger_jobs|length }} upcoming job{{ 's' if danger_jobs|length > 1 else '' }}</strong> with no accepted detailer.</span>
+</div>
+{% endif %}
+
+<!-- ── Jobs table ────────────────────────────────────────────────── -->
+{% if jobs %}
+<div class="section_card" style="padding:0">
+    <table class="data_table">
+        <thead>
+            <tr>
+                <th style="padding-left:20px">Appt ID</th>
+                <th>Customer</th>
+                <th>Service</th>
+                <th>Date / Time</th>
+                <th>Status</th>
+                <th>Detailers</th>
+                <th style="padding-right:20px">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for j in jobs %}
+        {% set b = j.booking %}
+        <tr id="row_{{ b.appt_id }}" {% if j.danger %}class="danger_row"{% endif %}>
+            <td style="padding-left:20px">
+                <code style="color:#666;font-size:11px">{{ b.appt_id }}</code>
+                {% if j.danger %}
+                <span class="badge badge_red" style="margin-left:4px;font-size:9px">!</span>
+                {% endif %}
+            </td>
+            <td>
+                <div style="color:white;font-size:13px">{{ b.customer_name or '—' }}</div>
+                <div style="color:#444;font-size:11px">{{ b.customer_email or '' }}</div>
+                <div style="color:#444;font-size:11px">{{ b.customer_phone or '' }}</div>
+            </td>
+            <td style="color:#aaa;font-size:12px;max-width:200px">{{ b.service or '—' }}</td>
+            <td>
+                <div style="color:white">{{ b.date or '—' }}</div>
+                <div style="color:#555;font-size:12px">{{ b.start_time or '' }}</div>
+            </td>
+            <td>
+                {% if b.status == 'Completed' %}
+                    <span class="badge badge_green">{{ b.status }}</span>
+                {% elif b.status == 'Cancelled' %}
+                    <span class="badge badge_red">{{ b.status }}</span>
+                {% elif b.status == 'Confirmed' %}
+                    <span class="badge badge_gold">{{ b.status }}</span>
+                {% else %}
+                    <span class="badge badge_grey">{{ b.status }}</span>
+                {% endif %}
+            </td>
+            <td>
+                {% if j.assigned %}
+                    {% for a in j.assigned %}
+                    <div style="font-size:11px;margin-bottom:2px">
+                        <img class="emp_avatar_sm" style="width:20px;height:20px;vertical-align:middle"
+                             src="{{ url_for('static', filename=a.emp.avatar if a.emp.avatar else 'PNG/employee_avatar.png') }}"
+                             alt="">
+                        <span style="color:#aaa">{{ a.emp.first_name }}</span>
+                        {% if a.status == 'accepted' %}
+                            <span class="badge badge_green" style="font-size:9px">✓</span>
+                        {% elif a.status == 'denied' %}
+                            <span class="badge badge_red" style="font-size:9px">✗</span>
+                        {% else %}
+                            <span class="badge badge_grey" style="font-size:9px">?</span>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <span style="color:#333;font-size:11px">None offered</span>
+                {% endif %}
+            </td>
+            <td style="padding-right:20px">
+                <button class="btn_ghost" onclick="toggleJobEdit('{{ b.appt_id }}')">Edit</button>
+            </td>
+        </tr>
+
+        <!-- Expand edit row -->
+        <tr id="edit_{{ b.appt_id }}" style="display:none;background:#0c0c0c">
+            <td colspan="7" style="padding:16px 20px">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+
+                    <!-- Left: Edit booking fields -->
+                    <form method="POST" action="{{ url_for('manage_jobs') }}" class="mform">
+                        <input type="hidden" name="action" value="update">
+                        <input type="hidden" name="appt_id" value="{{ b.appt_id }}">
+                        <div class="edit_form_grid" style="grid-template-columns:1fr 1fr;gap:10px">
+                            <div>
+                                <label>Status</label>
+                                <select name="status">
+                                    {% for s in ['Pending','Confirmed','Completed','Cancelled'] %}
+                                    <option value="{{ s }}" {% if b.status == s %}selected{% endif %}>{{ s }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div>
+                                <label>Date</label>
+                                <input type="date" name="date" value="{{ b.date or '' }}">
+                            </div>
+                            <div>
+                                <label>Start Time</label>
+                                <input type="time" name="start_time" value="{{ b.start_time or '' }}">
+                            </div>
+                            <div>
+                                <label>Customer Name</label>
+                                <input type="text" name="customer_name" value="{{ b.customer_name or '' }}">
+                            </div>
+                            <div>
+                                <label>Customer Email</label>
+                                <input type="email" name="customer_email" value="{{ b.customer_email or '' }}">
+                            </div>
+                            <div>
+                                <label>Customer Phone</label>
+                                <input type="tel" name="customer_phone" value="{{ b.customer_phone or '' }}">
+                            </div>
+                        </div>
+                        <button class="btn_gold" type="submit">Save Changes</button>
+                        <button class="btn_ghost" type="button" onclick="toggleJobEdit('{{ b.appt_id }}')">Cancel</button>
+                    </form>
+
+                    <!-- Right: Manually assign an employee -->
+                    <div>
+                        <p style="color:#555;font-size:12px;margin:0 0 10px">Manually assign a detailer:</p>
+                        <form method="POST" action="{{ url_for('manage_jobs') }}" class="inline_form" style="flex-wrap:wrap;gap:8px">
+                            <input type="hidden" name="action" value="assign">
+                            <input type="hidden" name="appt_id" value="{{ b.appt_id }}">
+                            <select name="employee_code" style="background:#1a1a1a;color:white;border:1px solid #2a2a2a;border-radius:4px;padding:6px 10px;font-size:13px">
+                                <option value="">— Choose employee —</option>
+                                {% for emp in employees %}
+                                <option value="{{ emp.employee_code }}">{{ emp.first_name }} {{ emp.last_name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn_ghost" type="submit">
+                                <i class="fa-solid fa-user-plus"></i> Assign
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="section_card">
+    <p style="color:#555">No jobs match this filter.</p>
+</div>
+{% endif %}
+
+<script>
+function toggleJobEdit(id) {
+    const row = document.getElementById('edit_' + id);
+    row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+</script>
+
+<style>
+.filter_bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.filter_pill {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    text-decoration: none;
+    color: #555;
+    border: 1px solid #2a2a2a;
+    transition: all 0.15s;
+}
+.filter_pill:hover { color: #FCBE28; border-color: #FCBE28; }
+.filter_pill.active { background: #FCBE28; color: black; border-color: #FCBE28; font-weight: bold; }
+.danger_row td { border-left: 3px solid #c0392b; }
+.danger_row td:first-child { padding-left: 17px !important; }
+</style>
+
+{% endblock %}

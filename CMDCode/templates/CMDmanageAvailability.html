@@ -1,0 +1,256 @@
+{% extends "CMDmanage.html" %}
+{% block head %}<title>Availability — Manage</title>{% endblock %}
+{% block content %}
+
+<h1 class="page_title">Team Availability</h1>
+
+<!-- ── Month nav ─────────────────────────────────────────────────── -->
+<div class="avail_nav">
+    <a class="btn_ghost" href="{{ url_for('manage_availability', year=prev_year, month=prev_month) }}">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    <span class="avail_month_label">{{ month_name }} {{ year }}</span>
+    <a class="btn_ghost" href="{{ url_for('manage_availability', year=next_year, month=next_month) }}">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+</div>
+
+<!-- ── Calendar grid ─────────────────────────────────────────────── -->
+<div class="section_card" style="padding:16px">
+    <div class="avail_grid">
+        <!-- Day headers -->
+        {% for day in ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'] %}
+        <div class="avail_header">{{ day }}</div>
+        {% endfor %}
+
+        <!-- Leading empty cells -->
+        {% for _ in range(first_weekday) %}
+        <div class="avail_cell avail_empty"></div>
+        {% endfor %}
+
+        <!-- Days -->
+        {% for day in range(1, days_in_month + 1) %}
+        {% set date_str = "%s-%02d-%02d" | format(year, month, day) %}
+        {% set day_avail = avail_map.get(date_str, []) %}
+        <div class="avail_cell {% if day_avail %}has_avail{% endif %}"
+             {% if day_avail %}onclick="showDayPopup('{{ date_str }}')"{% endif %}>
+            <span class="avail_day_num">{{ day }}</span>
+            {% if day_avail %}
+            <div class="avail_avatars">
+                {% for entry in day_avail[:4] %}
+                <img class="avail_avatar"
+                     src="{{ url_for('static', filename=entry.emp.avatar if entry.emp.avatar else 'PNG/employee_avatar.png') }}"
+                     alt="{{ entry.emp.first_name }}"
+                     title="{{ entry.emp.first_name }} {{ entry.emp.last_name }}">
+                {% endfor %}
+                {% if day_avail|length > 4 %}
+                <span class="avail_more">+{{ day_avail|length - 4 }}</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- ── Day detail popup ──────────────────────────────────────────── -->
+<div id="avail_popup_overlay" onclick="closePopup()"></div>
+<div id="avail_popup">
+    <div class="popup_header">
+        <span id="popup_date_label"></span>
+        <button class="btn_ghost" onclick="closePopup()" style="padding:4px 10px">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    </div>
+    <div id="popup_body"></div>
+</div>
+
+<!-- Embed avail data for JS -->
+<script>
+const AVAIL_DATA = {
+    {% for date_str, entries in avail_map.items() %}
+    "{{ date_str }}": [
+        {% for e in entries %}
+        {
+            "name": "{{ e.emp.first_name }} {{ e.emp.last_name }}",
+            "code": "{{ e.emp.employee_code }}",
+            "avatar": "{{ e.emp.avatar or 'PNG/employee_avatar.png' }}",
+            "slots": {{ e.slots | tojson }}
+        }{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ]{% if not loop.last %},{% endif %}
+    {% endfor %}
+};
+
+function showDayPopup(dateStr) {
+    const entries = AVAIL_DATA[dateStr] || [];
+    document.getElementById('popup_date_label').textContent = dateStr;
+
+    const d = new Date(dateStr + 'T00:00:00');
+    const label = d.toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric', year:'numeric'});
+    document.getElementById('popup_date_label').textContent = label;
+
+    let html = '';
+    if (!entries.length) {
+        html = '<p style="color:#555">No availability for this day.</p>';
+    } else {
+        entries.forEach(e => {
+            const slotsHtml = e.slots.map(s => {
+                const [h, m] = s.split(':').map(Number);
+                const suffix = h >= 12 ? 'pm' : 'am';
+                const hr     = h % 12 || 12;
+                return `<span class="slot_chip">${hr}:${String(m).padStart(2,'0')}${suffix}</span>`;
+            }).join('');
+            html += `
+            <div class="popup_emp_row">
+                <img class="emp_avatar_sm" style="flex-shrink:0"
+                     src="/static/${e.avatar}" alt="${e.name}">
+                <div>
+                    <div style="color:white;font-size:13px;font-weight:bold">${e.name}</div>
+                    <div style="color:#555;font-size:10px;margin-bottom:4px">${e.code}</div>
+                    <div class="slot_chips">${slotsHtml}</div>
+                </div>
+            </div>`;
+        });
+    }
+    document.getElementById('popup_body').innerHTML = html;
+    document.getElementById('avail_popup').classList.add('open');
+    document.getElementById('avail_popup_overlay').classList.add('open');
+}
+
+function closePopup() {
+    document.getElementById('avail_popup').classList.remove('open');
+    document.getElementById('avail_popup_overlay').classList.remove('open');
+}
+</script>
+
+<style>
+/* ── Month nav ── */
+.avail_nav {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.avail_month_label {
+    color: #FCBE28;
+    font-size: 18px;
+    font-weight: bold;
+    min-width: 180px;
+    text-align: center;
+}
+
+/* ── Calendar ── */
+.avail_grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+}
+.avail_header {
+    text-align: center;
+    font-size: 11px;
+    color: #444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 0;
+}
+.avail_empty { background: transparent; }
+.avail_cell {
+    background: #0d0d0d;
+    border: 1px solid #191919;
+    border-radius: 4px;
+    min-height: 80px;
+    padding: 6px;
+    position: relative;
+    vertical-align: top;
+}
+.avail_cell.has_avail {
+    cursor: pointer;
+    border-color: #2a1f00;
+    background: #111;
+}
+.avail_cell.has_avail:hover { border-color: #FCBE28; background: #141000; }
+.avail_day_num {
+    font-size: 12px;
+    color: #444;
+    display: block;
+    margin-bottom: 4px;
+}
+.avail_cell.has_avail .avail_day_num { color: #ccc; }
+.avail_avatars {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    margin-top: 2px;
+}
+.avail_avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid #2a2a2a;
+}
+.avail_more {
+    font-size: 10px;
+    color: #FCBE28;
+    line-height: 22px;
+    padding-left: 2px;
+}
+
+/* ── Popup ── */
+#avail_popup_overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 200;
+}
+#avail_popup_overlay.open { display: block; }
+#avail_popup {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+    width: 420px;
+    max-width: 90vw;
+    max-height: 70vh;
+    overflow-y: auto;
+    z-index: 201;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.7);
+}
+#avail_popup.open { display: block; }
+.popup_header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    font-size: 15px;
+    color: #FCBE28;
+    font-weight: bold;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #1a1a1a;
+}
+.popup_emp_row {
+    display: flex;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #0f0f0f;
+}
+.popup_emp_row:last-child { border-bottom: none; }
+.slot_chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.slot_chip {
+    background: #1a1200;
+    color: #FCBE28;
+    border: 1px solid #3a2800;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: 10px;
+}
+</style>
+
+{% endblock %}

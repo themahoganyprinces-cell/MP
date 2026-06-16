@@ -1,0 +1,131 @@
+{
+    "positions": [
+        "Knight",
+        "Squire"
+    ],
+    "categories": [
+        "Restoration",
+        "Wash",
+        "Detailing",
+        "Package"
+    ],
+    "services": {
+        "Restoration": {
+            "description": "Your car has seen better days. This is a great option for cars that have been neglected or for restoration projects. We offer a wide range of spot cleaning services, including pet stain removal, smoke damage cleaning, and odor removal. We also offer a more concentrated two-step process for major spills or bodily fluids.",
+            "additional_info": "Variation: Price and duration vary on size and area. Additional cost for bodily fluids applies for safety.",
+            "category": "Restoration",
+            "duo_only": false,
+            "pay_rates": {}
+        },
+        "Glow Up": {
+            "description": "Our Exterior cleaning option. We use an all-natural castor soap to clean the car body and provide deep wheel cleaning. This is followed by wax and buff. A streak-free interior and exterior window cleaning is included. This is a great option for a quick refresh or regular maintenance.",
+            "solo_price": 55.0,
+            "solo_duration": 60,
+            "duo_price": 60.0,
+            "duo_duration": 30,
+            "category": "Wash",
+            "duo_only": false,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        },
+        "Royal Detailing": {
+            "description": "This option adds full fabric shampooing, water extraction, seat belt steaming, and a full car air drying. This is a great option for a deep clean or for cars that have been exposed to pets, smoke, or other strong odors.",
+            "solo_price": 87.0,
+            "solo_duration": 90,
+            "duo_price": 93.0,
+            "duo_duration": 45,
+            "category": "Detailing",
+            "duo_only": false,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        },
+        "Nooks and Crannies": {
+            "description": "An extreme deep cleaning. We remove seats and target buildup below trim pieces and panels. We also offer the option for vacuuming below the carpeting upon request. This is a great option for cars that need a deep clean or for presummer cleaning.",
+            "duo_price": 170.0,
+            "duo_duration": 120,
+            "category": "Detailing",
+            "duo_only": true,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        },
+        "Noble Detailing": {
+            "description": "A quick interior detailing. This includes cleaning all high-contact materials and vacuuming. Screens, mirrors, and windows are guaranteed to be left clean and streak-free. Any weather-proof matting will be removed and cleaned. This is a great option for a quick refresh or regular maintenance.",
+            "solo_price": 55.0,
+            "solo_duration": 60,
+            "duo_price": 60.0,
+            "duo_duration": 30,
+            "category": "Detailing",
+            "duo_only": false,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        }
+    },
+    "packages": {
+        "Noble Glow Up": {
+            "description": "Our most popular package. This includes the Glow Up and Noble Detailing services. A great option for regular maintenance or a quick refresh.",
+            "solo_price": 99.0,
+            "solo_duration": 120,
+            "duo_price": 108.0,
+            "duo_duration": 60,
+            "category": "Package",
+            "duo_only": false,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        },
+        "New Found Kingdom": {
+            "description": "This includes all of our base services. A great option for cars that need a deep clean or for presummer cleaning.",
+            "duo_price": 218.0,
+            "duo_duration": 180,
+            "category": "Package",
+            "duo_only": true,
+            "pay_rates": {
+                "Knight": 30.0,
+                "Squire": 22.0
+            }
+        },
+        "Royal Glow Up": {
+            "description": "This includes the Glow Up, Noble Detailing, and Royal Detailing services. A great option for a deep clean or for cars that have been exposed to pets, smoke, or other strong odors.",
+            "solo_price": 128.0,
+            "solo_duration": 150,
+            "duo_price": 137.0,
+            "duo_duration": 90,
+            "category": "Package",
+            "duo_only": false,
+            "pay_rates": {
+                "Squire": 22.0,
+                "Knight": 30.0
+            }
+        }
+    },
+    "add_ons": {
+        "Headlight Restoration": {
+            "price": 20.0,
+            "duration": 15
+        },
+        "Tire Shine": {
+            "price": 10.0,
+            "duration": 10
+        },
+        "Quick Wax": {
+            "price": 25.0,
+            "duration": 30
+        }
+    },
+    "car_type_multipliers": {
+        "Sedan": 1.0,
+        "SUV": 1.2,
+        "Truck": 1.3,
+        "Van": 1.4,
+        "Luxury": 1.5
+    }
+}

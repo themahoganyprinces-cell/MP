@@ -1,0 +1,685 @@
+.service_name {
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.popup {
+    display: none;
+}
+
+#booking_row {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+#service_list {
+    flex: 1;
+}
+
+#side_panels {
+    width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: sticky;
+    top: 20px;
+}
+
+#detail_panel {
+    background-color: #000000;
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    overflow-y: auto;
+}
+
+#detail_panel.hidden {
+    display: none;
+}
+
+#detail_name {
+    color: #FCBE28;
+    margin: 0 0 12px 0;
+}
+
+.price_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+}
+
+.add_button {
+    background-color: #FCBE28;
+    color: black;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.hidden {
+    display: none;
+}
+
+.car_item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 12px 0;
+    cursor: pointer;
+    border: 2px solid #FCBE28;
+    width: 75px;
+    padding: 6px;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.car_item.selected {
+    background-color: #FCBE28;
+    color: black;
+}
+
+#car_list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    flex-direction: row;
+    margin:10px;   
+}
+
+#car_button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 0;
+}
+
+.step-title{
+    font-size: 20px;
+    font-weight: bold;
+    width:75%;
+    margin: 12px 0;
+    background-color: #FCBE28;
+    color:#000000;
+    border-radius: 5px;
+}
+
+.service-heading {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 20px 0 10px 0;
+    color:white;
+}
+#selected_panel {
+    background-color: #000000;
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    text-align: center;
+}
+#counter-table {
+    margin: 0 auto;
+}
+.count {
+    font-size: 24px;
+    font-weight: bold;
+    color: #FCBE28;
+    padding: 10px 20px;
+    border: 2px solid #FCBE28;
+    border-radius: 5px;
+    min-width: 60px;
+}   
+.form_nav_buttons {
+    background-color: #FCBE28;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+#alert-popup,
+#request-confirm-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #000000;
+    border: 2px solid #FCBE28;
+    border-radius: 10px;
+    padding: 30px;
+    z-index: 2000;
+    color: white;
+    text-align: center;
+    width: 300px;
+}
+#alert-message {
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+}
+.alert-response-button {
+    background-color: #FCBE28;
+    color: black;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin: 0 8px;
+    font-weight: bold;
+}
+.service_item.selected .service_name {
+    background-color: #FCBE28;
+    color: black;
+    border-radius: 5px;
+    padding: 4px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.worker_badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background-color: black;
+    color: #FCBE28;
+    font-size: 12px;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+.worker_badge.hidden {
+    display: none;
+}
+.swap_btn, .remove_btn {
+    background: none;
+    border: none;
+    color: black;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+.swap_btn:hover, .remove_btn:hover {
+    background-color: rgba(0,0,0,0.15);
+}
+#time_slot_row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+}
+#booking_calendar {
+    /* CSS variables — these theme everything inside the calendar */
+    --primary-color:    #FCBE28;
+    --secondary-color:  #000000;
+    --background-color: #000000;
+    --text-color:       #ffffff;
+    --accent-color:     #FCBE28;
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 10px;
+    background-color: #000000;
+    color: white;
+}
+/* #time_slots styles are defined in the new section above */
+.time_slot_item {
+    padding: 10px;
+    border: 1px solid #FCBE28;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #000000;
+    color: white;
+    transition: background-color 0.2s;
+}
+.time_slot_item:hover {
+    background-color: #FCBE28;
+    color: black;
+}
+.time_slot_item.selected {
+    background-color: #FCBE28;
+    color: black;
+} 
+.calendar .day.available {
+    color: #FCBE28;
+}
+.calendar .day.request {
+    color: #FCBE28;
+}
+.calendar .day.unavailable {
+    color: #555;
+    cursor: default;
+    text-decoration: line-through;
+}
+.calendar .day.unavailable:hover {
+    background: none;
+}
+.calendar-key {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #aaa;
+    padding: 0 4px;
+}
+.key-dot {
+    width: 5px;
+    height: 5px;
+    background-color: #FCBE28;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+}
+.slot_button {
+    background-color: #000000;
+    color: white;
+    border: 1px solid #FCBE28;
+    border-radius: 5px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-size: 13px;
+    min-width: 44px;
+    text-align: center;
+    transition: background-color 0.2s, color 0.2s;
+}
+.slot_button:hover:not(.unavailable) {
+    background-color: #FCBE28;
+    color: black;
+}
+.slot_button.slot-selected {
+    background-color: #FCBE28;
+    color: black;
+    font-weight: bold;
+}
+.slot_button.unavailable {
+    background-color: #111;
+    color: #444;
+    border-color: #333;
+    cursor: default;
+}
+/* Tail slots within a selected block: gold even if individually unavailable */
+.slot_button.unavailable.slot-selected {
+    background-color: #c49a00;
+    color: #000;
+    border-color: #c49a00;
+    font-weight: bold;
+    cursor: default;
+}
+#request_notice {
+    margin-top: 16px;
+    padding: 14px;
+    border: 1px solid #FCBE28;
+    border-radius: 8px;
+    color: white;
+    background-color: #111;
+}
+#request_notice p {
+    margin: 0 0 12px 0;
+}
+#backup_date_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+#backup_date_input {
+    background: #000;
+    color: white;
+    border: 1px solid #FCBE28;
+    border-radius: 5px;
+    padding: 6px 10px;
+}
+.return_button {
+    background-color: #FCBE28;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* ── Page nav (centered buttons shared across steps) ──────── */
+.page-nav {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin: 28px auto 48px;
+}
+
+/* ── Customer info section ─────────────────────────────────── */
+#customer_info_section {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+#customer_info_section h3 {
+    color: #FCBE28;
+    margin: 0 0 2px;
+    font-size: 16px;
+}
+#customer_info_section > p {
+    color: #888;
+    font-size: 13px;
+    margin: 0 0 6px;
+}
+#customer_info_section label {
+    color: #aaa;
+    font-size: 13px;
+    margin-bottom: 2px;
+}
+#customer_info_section label span {
+    color: #555;
+    font-size: 11px;
+}
+#customer_name_input,
+#customer_email_input,
+#customer_phone_input {
+    width: 100%;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 14px;
+    box-sizing: border-box;
+    font-family: inherit;
+    transition: border-color 0.15s;
+}
+#customer_name_input:focus,
+#customer_email_input:focus,
+#customer_phone_input:focus {
+    outline: none;
+    border-color: #FCBE28;
+}
+#customer_name_input::placeholder,
+#customer_email_input::placeholder,
+#customer_phone_input::placeholder {
+    color: #444;
+}
+#customer_info_error {
+    color: #c0392b;
+    font-size: 13px;
+    margin: 4px 0 0;
+}
+
+/* ── Time slot panel ───────────────────────────────────────── */
+#time_slots {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    background: #000;
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 16px;
+    min-width: 200px;
+    max-width: 260px;
+}
+.slot_group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.slot_group_label {
+    color: #FCBE28;
+    font-size: 10px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #222;
+}
+.slot_grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+}
+.slot_button {
+    width: 100%;
+    min-width: unset;
+}
+
+/* ── Formula section ───────────────────────────────────────── */
+#formula_tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 2px solid #FCBE28;
+    margin-bottom: 0;
+}
+.formula_tab {
+    background: #000;
+    color: #FCBE28;
+    border: 1px solid #FCBE28;
+    border-bottom: none;
+    padding: 8px 18px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-radius: 6px 6px 0 0;
+    transition: background 0.2s, color 0.2s;
+}
+.formula_tab.active {
+    background: #FCBE28;
+    color: #000;
+}
+.formula_tab.tab-disabled {
+    color: #555;
+    border-color: #333;
+    cursor: not-allowed;
+}
+.formula_panel {
+    min-height: 160px;
+    padding-top: 16px;
+}
+.formula_panel.hidden {
+    display: none;
+}
+.formula_instruction {
+    color: #aaa;
+    font-size: 13px;
+    margin: 0 0 14px 0;
+}
+.formula_desc {
+    background: #0d0d0d;
+    border: 1px solid #333;
+    border-radius: 6px;
+    padding: 10px 14px;
+    color: #aaa;
+    font-size: 12px;
+    line-height: 1.6;
+    margin-bottom: 14px;
+}
+.formula_desc strong {
+    color: #FCBE28;
+}
+.formula_subheading {
+    color: #FCBE28;
+    font-size: 14px;
+    font-weight: bold;
+    margin: 20px 0 6px;
+    border-top: 1px solid #333;
+    padding-top: 14px;
+}
+.formula_note {
+    color: #aaa;
+    font-size: 12px;
+    font-weight: normal;
+}
+.formula_grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 6px;
+}
+.formula_item {
+    background: #000;
+    color: #fff;
+    border: 1px solid #FCBE28;
+    border-radius: 6px;
+    padding: 8px 16px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: background 0.15s, color 0.15s;
+    user-select: none;
+}
+.formula_item:hover:not(.formula-disabled) {
+    background: rgba(252,190,40,0.15);
+}
+.formula_item.formula-selected {
+    background: #FCBE28;
+    color: #000;
+    font-weight: bold;
+}
+.formula_item.formula-disabled {
+    background: #111;
+    color: #444;
+    border-color: #333;
+    cursor: not-allowed;
+}
+/* #formula_nav layout handled by .page-nav */
+#formula_nav {
+    margin-top: 24px;
+}
+
+/* ── Confirm & final pages ─────────────────────────────────── */
+.booking_car_card {
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    background: #0a0a0a;
+}
+.summary_row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    padding: 6px 0;
+    border-bottom: 1px solid #1a1a1a;
+}
+.summary_row:last-child { border-bottom: none; }
+.summary_label {
+    color: #FCBE28;
+    font-weight: bold;
+    font-size: 13px;
+    min-width: 100px;
+}
+.summary_value {
+    color: #fff;
+    flex: 1;
+    font-size: 14px;
+}
+.edit_btn {
+    background: none;
+    border: 1px solid #FCBE28;
+    color: #FCBE28;
+    border-radius: 4px;
+    padding: 3px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.edit_btn:hover {
+    background: #FCBE28;
+    color: #000;
+}
+#confirm_actions {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    margin-top: 20px;
+}
+.completed_car_card {
+    border-color: #555;
+    opacity: 0.85;
+}
+.completed_car_header, .final_car_header {
+    color: #FCBE28;
+    font-weight: bold;
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+.completed_car_detail {
+    color: #ccc;
+    font-size: 13px;
+    padding: 2px 0;
+}
+#final_pricing {
+    border: 1px solid #FCBE28;
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 20px 0;
+    background: #0a0a0a;
+}
+#final_pricing h3 {
+    color: #FCBE28;
+    margin: 0 0 12px;
+}
+.pricing_row {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 0;
+    color: #ccc;
+    font-size: 14px;
+    border-bottom: 1px solid #1a1a1a;
+}
+#final_total_row {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0 0;
+    margin-top: 8px;
+    color: #fff;
+    font-weight: bold;
+    font-size: 16px;
+}
+.price_highlight {
+    color: #FCBE28;
+    font-weight: bold;
+}
+#payment_disclaimer {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: #aaa;
+    font-size: 13px;
+    background: #0a0a0a;
+    margin-bottom: 20px;
+}
+#payment_disclaimer strong {
+    color: #FCBE28;
+}
+#thank_you_page {
+    text-align: center;
+    padding: 60px 20px;
+}
+#thank_you_page h2 {
+    color: #FCBE28;
+    font-size: 24px;
+    margin-bottom: 16px;
+}
+#appt_ids_display p {
+    color: #fff;
+    font-size: 15px;
+    margin: 8px 0;
+}
+#appt_ids_display strong {
+    color: #FCBE28;
+    letter-spacing: 1px;
+}
+#final_confirmation .return_button,
+#final_confirmation .form_nav_buttons {
+    margin-right: 12px;
+}

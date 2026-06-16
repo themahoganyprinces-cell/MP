@@ -1,0 +1,296 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+<title>My Inventory — {{ employee_name }}</title>
+<style>
+  #inv_page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 32px 24px;
+  }
+  #inv_page h1 { color: #FCBE28; margin: 0 0 4px; font-size: 26px; }
+  .inv_sub { color: #888; margin: 0 0 32px; font-size: 14px; }
+
+  .inv_section { margin-bottom: 36px; }
+  .inv_section_title {
+    font-size: 17px;
+    color: #FCBE28;
+    margin: 0 0 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* Stock cards */
+  .stock_grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .stock_card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .stock_item { color: #ccc; font-size: 14px; font-weight: 500; }
+  .stock_cat  { color: #555; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stock_qty  { color: #FCBE28; font-size: 22px; font-weight: bold; }
+  .stock_update_form {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    align-items: center;
+  }
+  .stock_update_form input[type="number"] {
+    flex: 1;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 5px;
+    padding: 5px 8px;
+    font-size: 13px;
+    font-family: inherit;
+    width: 60px;
+  }
+  .stock_update_form input[type="number"]:focus {
+    outline: none;
+    border-color: #FCBE28;
+  }
+  .btn_update {
+    background: none;
+    border: 1px solid #3a3000;
+    color: #FCBE28;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+    font-family: inherit;
+    white-space: nowrap;
+  }
+  .btn_update:hover { background: #1a1400; }
+
+  /* Request form */
+  .req_form_card {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 22px 24px;
+  }
+  .fg { margin-bottom: 14px; }
+  .fg label {
+    display: block;
+    color: #777;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 5px;
+  }
+  .fg select, .fg input[type="number"], .fg input[type="text"] {
+    width: 100%;
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 6px;
+    padding: 9px 12px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+  }
+  .fg select:focus, .fg input:focus { outline: none; border-color: #FCBE28; }
+  .fg-row { display: flex; gap: 14px; margin-bottom: 14px; }
+  .fg-row .fg { flex: 1; margin-bottom: 0; }
+
+  .btn_gold {
+    background: #FCBE28;
+    color: black;
+    border: none;
+    border-radius: 6px;
+    padding: 9px 22px;
+    font-size: 13px;
+    font-weight: bold;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .btn_gold:hover { background: #e0a800; }
+
+  /* Request history */
+  .req_row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid #1a1a1a;
+    flex-wrap: wrap;
+  }
+  .req_row:last-child { border-bottom: none; }
+  .req_item { color: #ccc; font-size: 14px; flex: 2; min-width: 120px; }
+  .req_cat  { color: #555; font-size: 12px; }
+  .req_qty  { color: #888; font-size: 13px; flex: 1; }
+  .req_note { color: #555; font-size: 12px; font-style: italic; flex: 2; }
+  .req_status_pending   { color: #FCBE28; font-size: 12px; white-space: nowrap; }
+  .req_status_fulfilled { color: #5cb85c; font-size: 12px; white-space: nowrap; }
+  .req_status_denied    { color: #c0392b; font-size: 12px; white-space: nowrap; }
+
+  .empty_state {
+    color: #444;
+    font-style: italic;
+    font-size: 14px;
+    padding: 16px 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="inv_page">
+
+  <h1>My Inventory</h1>
+  <p class="inv_sub">Your personal stock and supply requests.</p>
+
+  {# ── Personal Stock ────────────────────────────────────────────────── #}
+  <div class="inv_section">
+    <h2 class="inv_section_title">
+      <i class="fa-solid fa-box-open"></i> My Stock
+    </h2>
+    {% if personal %}
+    <div class="stock_grid">
+      {% for entry in personal %}
+      <div class="stock_card">
+        <div class="stock_cat">{{ entry.category }}</div>
+        <div class="stock_item">{{ entry.item }}</div>
+        <div class="stock_qty">{{ entry.quantity }}</div>
+        <form method="POST" action="{{ url_for('employee_inventory_update') }}"
+              class="stock_update_form">
+          <input type="hidden" name="inv_id" value="{{ entry.id }}">
+          <input type="number" name="quantity" value="{{ entry.quantity }}" min="0">
+          <button type="submit" class="btn_update">Update</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty_state">You don't have any personal stock on record yet. Request items below and your manager will assign them to you.</p>
+    {% endif %}
+  </div>
+
+  {# ── Request Items ─────────────────────────────────────────────────── #}
+  <div class="inv_section">
+    <h2 class="inv_section_title">
+      <i class="fa-solid fa-hand"></i> Request Items
+    </h2>
+    {% if all_categories %}
+    <div class="req_form_card">
+      <form method="POST" action="{{ url_for('employee_inventory_request') }}">
+        <div class="fg-row">
+          <div class="fg">
+            <label>Category</label>
+            <select name="category" id="req_cat" onchange="updateItems()" required>
+              <option value="">Select category…</option>
+              {% for cat in all_categories %}
+              <option value="{{ cat }}">{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="fg">
+            <label>Item</label>
+            <select name="item" id="req_item" required>
+              <option value="">Select category first…</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg-row">
+          <div class="fg">
+            <label>Quantity</label>
+            <input type="number" name="quantity" min="1" value="1" required>
+          </div>
+          <div class="fg">
+            <label>Note (optional)</label>
+            <input type="text" name="note" placeholder="Any context for your manager…">
+          </div>
+        </div>
+        <button type="submit" class="btn_gold">Submit Request</button>
+      </form>
+    </div>
+    {% else %}
+    <p class="empty_state">No inventory categories are set up yet.</p>
+    {% endif %}
+  </div>
+
+  {# ── Pending Requests ─────────────────────────────────────────────── #}
+  <div class="inv_section">
+    <h2 class="inv_section_title">
+      <i class="fa-solid fa-clock"></i> Pending Requests
+      {% if pending_reqs %}
+      <span style="background:#FCBE28;color:black;font-size:12px;font-weight:bold;
+                   border-radius:12px;padding:2px 8px;">{{ pending_reqs|length }}</span>
+      {% endif %}
+    </h2>
+    {% if pending_reqs %}
+    <div>
+      {% for r in pending_reqs %}
+      <div class="req_row">
+        <div class="req_item">
+          {{ r.item }}<br><span class="req_cat">{{ r.category }}</span>
+        </div>
+        <div class="req_qty">Qty: {{ r.quantity_requested }}</div>
+        <div class="req_note">{{ r.note or '' }}</div>
+        <div class="req_status_pending">
+          <i class="fa-solid fa-hourglass-half"></i> Pending
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty_state">No pending requests.</p>
+    {% endif %}
+  </div>
+
+  {# ── Request History ───────────────────────────────────────────────── #}
+  {% if past_reqs %}
+  <div class="inv_section">
+    <h2 class="inv_section_title">
+      <i class="fa-solid fa-rectangle-list"></i> Request History
+    </h2>
+    <div>
+      {% for r in past_reqs %}
+      <div class="req_row">
+        <div class="req_item">
+          {{ r.item }}<br><span class="req_cat">{{ r.category }}</span>
+        </div>
+        <div class="req_qty">
+          Asked: {{ r.quantity_requested }}
+          {% if r.status == 'fulfilled' %} / Given: {{ r.fulfilled_qty }}{% endif %}
+        </div>
+        <div class="req_note">{{ r.note or '' }}</div>
+        {% if r.status == 'fulfilled' %}
+        <div class="req_status_fulfilled"><i class="fa-solid fa-check"></i> Fulfilled</div>
+        {% else %}
+        <div class="req_status_denied"><i class="fa-solid fa-xmark"></i> Denied</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+</div>
+
+<script>
+  const itemMap = {{ all_categories | tojson }};
+  function updateItems() {
+    const cat = document.getElementById('req_cat').value;
+    const sel = document.getElementById('req_item');
+    sel.innerHTML = '<option value="">Select item…</option>';
+    if (cat && itemMap[cat]) {
+      itemMap[cat].forEach(itm => {
+        const opt = document.createElement('option');
+        opt.value = itm;
+        opt.textContent = itm;
+        sel.appendChild(opt);
+      });
+    }
+  }
+</script>
+{% endblock %}

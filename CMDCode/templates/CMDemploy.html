@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="{{ url_for('static', filename='PNG/CMDlogo.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='CMDemploystyle.css') }}">
+        <script src="https://kit.fontawesome.com/d303cba5a4.js" crossorigin="anonymous"></script>
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        <nav>
+            <div id="navbrand">
+                <img id="navicon" src="{{ url_for('static', filename='PNG/CMDlogo.png') }}"
+                     alt="Crown Mahogany Detailing logo" width="50" height="50">
+
+                <div id="employee_menu">
+                    <!-- Crown — branch switcher -->
+                    <button id="crown_btn" aria-label="Switch branch">
+                        <span class="fa-solid fa-crown"></span>
+                    </button>
+
+                    <!-- Avatar — account dropdown -->
+                    <button id="account_menu" aria-label="Account menu">
+                        <img id="employee_avatar"
+                             src="{{ url_for('static', filename=employee_avatar if employee_avatar else 'PNG/employee_avatar.svg') }}"
+                             alt="Employee Avatar" width="40" height="40">
+                    </button>
+
+                    <!-- Branch switcher dropdown -->
+                    <div id="branch_dropdown" class="dropdown-hidden">
+                        <p class="dropdown_label">Switch Branch</p>
+                        <ul>
+                            {% if employee and employee.cmd_access %}
+                            <li>
+                                <a href="{{ url_for('employee_dashboard') }}" class="branch_item branch_active">
+                                    <img src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="CMD" width="22" height="22">
+                                    <span>
+                                        <strong>CMD</strong>
+                                        <small>Crown Mahogany Detailing</small>
+                                    </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if employee and employee.mp_access %}
+                            <li>
+                                <a href="#" class="branch_item">
+                                    <img src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="MP" width="22" height="22">
+                                    <span>
+                                        <strong>MP</strong>
+                                        <small>The Mahogany Princes</small>
+                                    </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if employee and employee.mmm_access %}
+                            <li>
+                                <a href="#" class="branch_item">
+                                    <img src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="MMM" width="22" height="22">
+                                    <span>
+                                        <strong>MMM</strong>
+                                        <small>Mahogany Multimedia</small>
+                                    </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                            {% if employee and employee.mce_access %}
+                            <li>
+                                <a href="#" class="branch_item">
+                                    <img src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="MCE" width="22" height="22">
+                                    <span>
+                                        <strong>MCE</strong>
+                                        <small>Mahogany Crown Estates</small>
+                                    </span>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </div>
+
+                    <!-- Account dropdown -->
+                    <div id="account_dropdown" class="dropdown-hidden">
+                        <p id="employee_name">{{ employee_name }}</p>
+                        <ul>
+                            <li><a href="{{ url_for('employee_profile') }}">Profile</a></li>
+                            <li><a href="{{ url_for('employee_settings') }}">Settings</a></li>
+                            {% if employee and employee.manage_access %}
+                            <li class="dropdown_divider"></li>
+                            <li><a href="{{ url_for('manage_employees') }}" class="dropdown_manage_link">
+                                <i class="fa-solid fa-crown"></i> Switch to Manage
+                            </a></li>
+                            {% endif %}
+                            <li class="dropdown_divider"></li>
+                            <li><a href="{{ url_for('employee_signout') }}">Logout</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="navlinks">
+                <a class="navbutton" id="nav_dashboard"  href="{{ url_for('employee_dashboard') }}">Dashboard</a>
+                <a class="navbutton" id="nav_upcoming"   href="{{ url_for('employee_upcoming_jobs') }}">Upcoming Jobs</a>
+                <a class="navbutton" id="nav_avail"      href="{{ url_for('employee_availability') }}">Availability</a>
+                <a class="navbutton" id="nav_inventory"  href="{{ url_for('employee_inventory') }}">My Inventory</a>
+                <a class="navbutton" id="nav_pay"        href="{{ url_for('employee_pay_details') }}">Pay Details</a>
+                <a class="navbutton" id="nav_contact"    href="{{ url_for('employee_contact') }}">Stay in Contact</a>
+            </div>
+
+            <div id="actionbutton">
+                <div id="notification">
+                    <button type="button" aria-label="Notifications" id="notifications_icon"
+                        style="background:none;border:none;cursor:pointer;color:#FCBE28;
+                               font-size:28px;position:relative;padding:0;line-height:1;
+                               display:flex;align-items:center;justify-content:center;
+                               width:40px;height:40px;">
+                        <i class="fa-solid fa-bell"></i>
+                        {% if notifications|length > 0 %}
+                            <span id="notification_count">{{ notifications|length }}</span>
+                        {% endif %}
+                    </button>
+                    <div id="notification_dropdown" class="dropdown-hidden">
+                        {% if notifications %}
+                            <ul id="notification_list">
+                                {% for n in notifications[:3] %}
+                                    <li class="notif-item {% if not n.read %}unread{% endif %}" data-id="{{ n.id }}">
+                                        {{ n.message }}
+                                        <span class="notif-time">{{ n.timestamp.strftime('%b %d') }}</span>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                            {% if notifications|length > 3 %}
+                                <a id="see_more" href="{{ url_for('employee_notifications') }}">See all ({{ notifications|length }})</a>
+                            {% endif %}
+                        {% else %}
+                            <p class="no-notif">No new notifications</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {% block content %}{% endblock %}
+        <footer></footer>
+
+        <script>
+        const accountBtn   = document.getElementById('account_menu');
+        const accountDrop  = document.getElementById('account_dropdown');
+        const crownBtn     = document.getElementById('crown_btn');
+        const branchDrop   = document.getElementById('branch_dropdown');
+        const notifBtn     = document.getElementById('notifications_icon');
+        const notifDrop    = document.getElementById('notification_dropdown');
+
+        function closeAll() {
+            accountDrop.classList.add('dropdown-hidden');
+            branchDrop.classList.add('dropdown-hidden');
+            notifDrop.classList.add('dropdown-hidden');
+        }
+
+        crownBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = !branchDrop.classList.contains('dropdown-hidden');
+            closeAll();
+            if (!open) branchDrop.classList.remove('dropdown-hidden');
+        });
+
+        accountBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = !accountDrop.classList.contains('dropdown-hidden');
+            closeAll();
+            if (!open) accountDrop.classList.remove('dropdown-hidden');
+        });
+
+        notifBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const open = !notifDrop.classList.contains('dropdown-hidden');
+            closeAll();
+            if (!open) notifDrop.classList.remove('dropdown-hidden');
+        });
+
+        document.addEventListener('click', closeAll);
+        </script>
+    </body>
+</html>

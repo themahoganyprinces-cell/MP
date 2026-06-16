@@ -1,0 +1,1169 @@
+{% extends "CMD.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDBookstyle.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='calender/calender.css') }}">
+    <script src="{{ url_for('static', filename='calender/calender.js') }}" defer></script>
+    <title>Book an Appointment </title>
+{% endblock %}
+{% block content %}
+
+    <h1>Book an Appointment</h1>
+    <div id="car_selection">
+        <div class="step-title"><p>Select a car type</p></div>
+        <nav id="car_list">
+            {% for car in cars %}
+                <div id="car_button">
+                    <div class="car_item" data-car-name="{{ car.name }}"
+                         data-gold="{{ url_for('static', filename=car.gold_image) }}"
+                         data-black="{{ url_for('static', filename=car.black_image) }}">
+                        <img src="{{ url_for('static', filename=car.gold_image) }}" height="75px" width="75px">
+                    </div>
+                    <h3 class="car_name">{{ car.name }}</h3>
+                </div>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <div id="booking_container" class="hidden">
+        <p class="step-title">Select a service from the list below:</p>
+        <div id="booking_row">
+        <div id="service_list">
+            <p class="service-heading">Individual Services:</p>
+            {% for service in services %}
+                {% if service.name == "Restoration" %}
+                    <div class="service_item" data-service-name="{{ service.name }}">
+                        <h3 class="service_name">{{ service.name }}
+                            <button class="remove_btn hidden">Remove</button>
+                        </h3>
+                        <div class="popup">
+                            <p>{{ service.description }}</p>
+                            <p>{{ service.additional_info }}</p>
+                            <button class="add_button" data-type="restoration">Request a consultation</button>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="service_item" data-service-name="{{ service.name }}">
+                        <h3 class="service_name">{{ service.name }}
+                            <span class="worker_badge hidden"></span>
+                            {% if not service.duo_only %}
+                                <button class="swap_btn hidden">Swap</button>
+                            {% endif %}
+                            <button class="remove_btn hidden">Remove</button>
+                        </h3>
+                        <div class="popup">
+                            <p>{{ service.description }}</p>
+                            <div class="price_row">
+                                {% if not service.duo_only %}
+                                    <p class="price">Solo Price: ${{ "%.2f" | format(service.solo_price) }}</p>
+                                    <button class="add_button" data-type="solo">Add</button>
+                                    <p class="price">Duo Price: ${{ "%.2f" | format(service.duo_price) }}</p>
+                                    <button class="add_button" data-type="duo">Add</button>
+                                {% else %}
+                                    <p class="price">Price: ${{ "%.2f" | format(service.duo_price) }}</p>
+                                    <button class="add_button" data-type="duo">Add</button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            <p class="service-heading">Packages</p>
+            {% for package in packages %}
+                <div class="service_item" data-package-name="{{ package.name }}">
+                    <h3 class="service_name">{{ package.name }}
+                        <span class="worker_badge hidden"></span>
+                        {% if not package.duo_only %}
+                            <button class="swap_btn hidden">Swap</button>
+                        {% endif %}
+                        <button class="remove_btn hidden">Remove</button>
+                    </h3>
+                    <div class="popup">
+                        <p>{{ package.description }}</p>
+                        {% if not package.duo_only %}
+                        <div class="price_row">
+                            <p class="price">Solo Price: ${{ "%.2f" | format(package.solo_price | default(0)) }}</p>
+                            <button class="add_button" data-type="solo">Add</button>
+                        </div>
+                        <div class="price_row">
+                            <p class="price">Duo Price: ${{ "%.2f" | format(package.duo_price | default(0)) }}</p>
+                            <button class="add_button" data-type="duo">Add</button>
+                        </div>
+                        {% else %}
+                        <div class="price_row">
+                            <p class="price">Price: ${{ "%.2f" | format(package.duo_price | default(0)) }}</p>
+                            <button class="add_button" data-type="duo">Add</button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+            
+            <p class="service-heading">Add Ons</p>
+            {% for addon in add_ons %}
+                <div class="service_item" data-addon-name="{{ addon.name }}">
+                    <h3 class="service_name">{{ addon.name }}
+                        <button class="remove_btn hidden">Remove</button>
+                    </h3>
+                    <div class="popup">
+                        <div class="price_row">
+                            <p class="price">Price: ${{ "%.2f" | format(addon.price) }}</p>
+                            <button class="add_button" data-type="addon">Add</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="side_panels">
+            <div id="detail_panel" class="hidden">
+                <h3 id="detail_name"></h3>
+                <div id="detail_body"></div>
+            </div>
+            <div id="selected_panel" class="hidden">
+                <h4>Selected:</h4>
+                <table id="counter-table">
+                    <tr>
+                        <td class="count" id="service_count">0</td>
+                        <td class="count" id="addon_count">0</td>
+                    </tr>
+                    <tr>
+                        <td class="counterlabel">Services</td>
+                        <td class="counterlabel">Add-ons</td>
+                    </tr>
+                </table>
+                <button class="form_nav_buttons">Proceed to Time Slot Selection</button>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+
+    <div id="alert-popup" class="hidden">
+        <p id="alert-message">These Services<br/><br/>cannot be reserved for the same car.<br/><br/>Would you like to replace the existing service selection with this one?</p>
+        <button class="alert-response-button" id="Replace">Replace</button>
+        <button class="alert-response-button" id="Cancel">Cancel</button>
+    </div>
+
+    <div id="request-confirm-popup" class="hidden">
+        <p id="request-confirm-message">This date is outside of our current availability.<br/><br/>A request can still be made. If no knight is available, you will be contacted through your preferred method to reschedule or confirm.<br/><br/>Would you like to make a request?</p>
+        <button class="alert-response-button" id="confirm-request-btn">Make a Request</button>
+        <button class="alert-response-button" id="cancel-request-btn">Go Back</button>
+    </div>
+
+    <div id="time-warning-popup" class="hidden">
+        <p>Your time selection may cause issues with current availability.<br/><br/>Would you like to continue?</p>
+        <button class="alert-response-button" id="time-warning-yes">Yes, Continue</button>
+        <button class="alert-response-button" id="time-warning-no">Go Back</button>
+    </div>
+
+    <div id="time-followup-popup" class="hidden">
+        <p>You will be contacted before the date if there ends up being a true problem with the time block you selected.</p>
+        <button class="alert-response-button" id="time-followup-ok">Understood</button>
+    </div>
+
+    <div class="hidden" id="time_slot_section">
+        <p class="step-title">Select a date and time</p>
+        <div id="time_slot_row">
+            <my-calendar id="booking_calendar"></my-calendar>
+            <div id="time_slots">
+                <p id="slot_prompt">Select a date to see available times.</p>
+            </div>
+        </div>
+        <div id="request_notice" class="hidden">
+            <p>This date is more than 2 weeks out — your booking will be submitted as a <strong>request</strong>. We'll confirm once our schedule is set.</p>
+            <div id="backup_date_row">
+                <label for="backup_date_input">Backup date:</label>
+                <input type="date" id="backup_date_input">
+            </div>
+        </div>
+        <div class="page-nav">
+            <button class="return_button" id="return_to_services">Return to Service Selection</button>
+            <button class="form_nav_buttons" id="proceed_to_formula">Proceed to Formula Selection</button>
+        </div>
+    </div>
+
+    <div class="hidden" id="formula_selection">
+        <p class="step-title">Select Your Formula</p>
+        <nav id="formula_tabs">
+            <button class="formula_tab active" data-tab="foundations">Foundation</button>
+            <button class="formula_tab" data-tab="scents">Scents</button>
+            <button class="formula_tab" data-tab="blends">Blends</button>
+        </nav>
+
+        <div class="formula_panel" id="tab_foundations">
+            <p class="formula_desc">The <strong>Foundation</strong> is the base cleaning formula applied to your car — think of it as the soap. Each option uses a different natural carrier oil, giving your car a different character of clean. Pick one, or skip and choose a Signature Blend on the Blends tab instead.</p>
+            <div class="formula_grid">
+                {% for foundation in foundations %}
+                <div class="formula_item" data-formula-type="foundation" data-formula-name="{{ foundation.name }}">{{ foundation.name }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="formula_panel hidden" id="tab_scents">
+            <p class="formula_desc"><strong>Scents</strong> are the essential oil mists we apply to leave your car smelling great. Pick up to 4 individual scents and we'll blend them to your taste — or choose one of our <strong>Majesty's Scents</strong> below for a pre-curated signature blend. Selecting a Majesty's Scent replaces individual picks.</p>
+            <div class="formula_grid">
+                {% for scent in scents %}
+                <div class="formula_item" data-formula-type="scent" data-formula-name="{{ scent }}">{{ scent }}</div>
+                {% endfor %}
+            </div>
+            <p class="formula_subheading">Majesty's Scents <span class="formula_note">(pre-curated blends — replaces individual scent picks)</span></p>
+            <div class="formula_grid">
+                {% for ms in majesties_scents %}
+                <div class="formula_item" data-formula-type="majesties_scent" data-formula-name="{{ ms.name }}">{{ ms.name }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="formula_panel hidden" id="tab_blends">
+            <p class="formula_desc"><strong>Signature Blends</strong> are our complete, tested recipes — a specific foundation paired with a specific scent combination. Selecting one replaces your individual foundation and scent choices entirely.</p>
+            <div class="formula_grid">
+                {% for sb in sig_blends %}
+                <div class="formula_item" data-formula-type="sig_blend" data-formula-name="{{ sb.name }}">{{ sb.name }}</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="page-nav" id="formula_nav">
+            <button class="return_button" id="formula_return">Return to Time Selection</button>
+            <button class="form_nav_buttons" id="formula_proceed">Proceed to Booking Confirmation</button>
+        </div>
+    </div>
+
+    <div class="hidden" id="confirm_booking">
+        <p class="step-title">Review Your Booking</p>
+        <div id="completed_cars_list"></div>
+        <div id="current_car_summary" class="booking_car_card">
+            <div class="summary_row">
+                <span class="summary_label">Car Type</span>
+                <span class="summary_value" id="sum_car"></span>
+                <button class="edit_btn" data-step="car">Edit</button>
+            </div>
+            <div class="summary_row">
+                <span class="summary_label">Service</span>
+                <span class="summary_value" id="sum_service"></span>
+                <button class="edit_btn" data-step="service">Edit</button>
+            </div>
+            <div class="summary_row">
+                <span class="summary_label">Add-ons</span>
+                <span class="summary_value" id="sum_addons"></span>
+                <button class="edit_btn" data-step="service">Edit</button>
+            </div>
+            <div class="summary_row">
+                <span class="summary_label">Date &amp; Time</span>
+                <span class="summary_value" id="sum_time"></span>
+                <button class="edit_btn" data-step="time">Edit</button>
+            </div>
+            <div class="summary_row">
+                <span class="summary_label">Formula</span>
+                <span class="summary_value" id="sum_formula"></span>
+                <button class="edit_btn" data-step="formula">Edit</button>
+            </div>
+        </div>
+        <div class="page-nav" id="confirm_actions">
+            <button class="return_button" id="add_another_car_btn">+ Add Another Car</button>
+            <button class="form_nav_buttons" id="proceed_to_final_btn">Proceed to Final Confirmation</button>
+        </div>
+    </div>
+
+    <div class="hidden" id="final_confirmation">
+        <p class="step-title">Final Confirmation</p>
+        <div id="final_cars_list"></div>
+        <div id="final_pricing">
+            <h3>Pricing Breakdown</h3>
+            <div id="final_pricing_rows"></div>
+            <div id="final_total_row">
+                <span>Total Due</span>
+                <span id="final_total_amount"></span>
+            </div>
+        </div>
+        <div id="payment_disclaimer">
+            <p>We accept <strong>cash on site</strong>, <strong>Venmo</strong>, <strong>Apple Pay</strong>, or <strong>PayPal</strong> upon completion of the job. No payment is required at time of booking.</p>
+        </div>
+        <div id="customer_info_section">
+            <h3>Your Contact Information</h3>
+            <p>We'll send your confirmation here.</p>
+            <label for="customer_name_input">Name:</label>
+            <input type="text" id="customer_name_input" placeholder="John Doe">
+            <label for="customer_email_input">Email <span>(required for confirmation)</span>:</label>
+            <input type="email" id="customer_email_input" placeholder="john@example.com">
+            <label for="customer_phone_input">Phone <span>(optional — for future correspondence)</span>:</label>
+            <input type="tel" id="customer_phone_input" placeholder="555-555-5555">
+
+            <h3 style="margin-top:18px;">Service Location</h3>
+            <p>Where should we come to you? This can be your home, workplace, or any address.</p>
+            <label for="service_address_input">Street Address <span>(optional)</span>:</label>
+            <input type="text" id="service_address_input" placeholder="123 Main St">
+            <label for="service_city_input">City <span>(required for scheduling)</span>:</label>
+            <input type="text" id="service_city_input" placeholder="Richmond">
+            <label for="service_state_input">State <span>(2-letter abbreviation)</span>:</label>
+            <input type="text" id="service_state_input" placeholder="VA" maxlength="2"
+                   style="text-transform:uppercase;width:80px;">
+            <p id="customer_info_error" class="hidden">Please enter your name and email before confirming.</p>
+        </div>
+        <div class="page-nav">
+            <button class="return_button" id="return_to_confirm_btn">Go Back</button>
+            <button class="form_nav_buttons" id="submit_booking_btn">Confirm Booking</button>
+        </div>
+    </div>
+
+    <div class="hidden" id="thank_you_page">
+        <div id="thank_you_content">
+            <h2 style="color:#FCBE28;margin-bottom:16px;">Thank you for booking with Crown Mahogany Detailing!</h2>
+            <div id="appt_ids_display"></div>
+            <p style="color:#ccc;margin:16px 0 28px;">Your appointment(s) have been submitted. We'll be in touch to confirm!</p>
+            <a href="{{ url_for('home') }}" class="form_nav_buttons" style="text-decoration:none;">Return to Home</a>
+        </div>
+    </div>
+
+<script type="application/json" id="page-data">
+{
+    "services": {{ services | tojson }},
+    "packages": {{ packages | tojson }},
+    "add_ons":  {{ add_ons  | tojson }},
+    "cars":     {{ cars     | tojson }}
+}
+</script>
+
+<script>
+const booking = {
+    service_counter: 0,
+    addons_counter: 0,
+    services: [],
+    addons: [],
+    date: null,
+    backup_date: null,
+    start_time: null,
+    foundation: null,
+    scent: null,
+    customer_info: {
+        name: null,
+        email: null,
+        phone: null,
+        address: null  // investigate if this needs encryption
+    },
+    appt_id: null,
+}
+
+let activeCard = null
+
+function cardName(card) {
+    return card.dataset.serviceName || card.dataset.packageName || card.dataset.addonName
+}
+
+function findCard(name) {
+    return document.querySelector(
+        `[data-service-name="${name}"], [data-package-name="${name}"], [data-addon-name="${name}"]`
+    )
+}
+
+function markCardSelected(card, type) {
+    card.classList.add('selected')
+    const badge = card.querySelector('.worker_badge')
+    if (badge) {
+        badge.textContent = type === 'duo' ? '2' : '1'
+        badge.classList.remove('hidden')
+    }
+    const swapBtn = card.querySelector('.swap_btn')
+    if (swapBtn) swapBtn.classList.remove('hidden')
+    card.querySelector('.remove_btn')?.classList.remove('hidden')
+}
+
+function clearCardSelected(card) {
+    card.classList.remove('selected')
+    card.querySelector('.worker_badge')?.classList.add('hidden')
+    card.querySelector('.swap_btn')?.classList.add('hidden')
+    card.querySelector('.remove_btn')?.classList.add('hidden')
+}
+
+// Open the detail panel when a service name is clicked
+document.querySelectorAll('.service_name').forEach(nameEl => {
+    nameEl.addEventListener('click', (e) => {
+        // Don't open panel when clicking swap/remove buttons
+        if (e.target.classList.contains('swap_btn') || e.target.classList.contains('remove_btn')) return
+
+        const card  = nameEl.closest('.service_item')
+        const popup = card.querySelector('.popup')
+        const panel = document.getElementById('detail_panel')
+
+        activeCard = card
+
+        const name    = cardName(card)
+        const isAddon = card.hasAttribute('data-addon-name')
+
+        document.getElementById('detail_name').textContent = name
+        document.getElementById('detail_body').innerHTML   = popup.innerHTML
+        panel.classList.remove('hidden')
+
+        // Restore "Added!" state if this item was already selected
+        const added = isAddon
+            ? booking.addons.find(a => a.name === name)
+            : booking.services.find(s => s.name === name)
+
+        if (added) {
+            document.querySelectorAll('#detail_body .add_button').forEach(btn => {
+                if (btn.dataset.type === added.type) {
+                    btn.textContent = 'Added!'
+                    btn.disabled = true
+                }
+            })
+        }
+    })
+})
+
+// Swap and Remove buttons on the service list cards
+document.getElementById('service_list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('swap_btn')) {
+        e.stopPropagation()
+        const card = e.target.closest('.service_item')
+        const name = cardName(card)
+        const entry = booking.services.find(s => s.name === name)
+        if (entry) {
+            entry.type = entry.type === 'solo' ? 'duo' : 'solo'
+            const badge = card.querySelector('.worker_badge')
+            if (badge) badge.textContent = entry.type === 'duo' ? '2' : '1'
+        }
+    }
+
+    if (e.target.classList.contains('remove_btn')) {
+        e.stopPropagation()
+        const card    = e.target.closest('.service_item')
+        const name    = cardName(card)
+        const isAddon = card.hasAttribute('data-addon-name')
+        if (isAddon) {
+            booking.addons = booking.addons.filter(a => a.name !== name)
+            booking.addons_counter--
+        } else {
+            booking.services = booking.services.filter(s => s.name !== name)
+            booking.service_counter--
+        }
+        clearCardSelected(card)
+        updateSelectedPanel()
+    }
+})
+
+const PACKAGE_UPGRADES = [
+    ['Glow Up', 'Noble Detailing',    'Noble Glow Up'],
+    ['Glow Up', 'Royal Detailing',    'Royal Glow Up'],
+    ['Glow Up', 'Nooks and Crannies', 'New Found Kingdom'],
+]
+
+function getUpgrade(a, b) {
+    for (const [x, y, pkg] of PACKAGE_UPGRADES) {
+        if ((a === x && b === y) || (a === y && b === x)) return pkg
+    }
+    return null
+}
+
+let pendingPopupAction = null
+
+function showPopup(message, onReplace, onCancel) {
+    document.getElementById('alert-message').innerHTML = message
+    document.getElementById('alert-popup').classList.remove('hidden')
+    pendingPopupAction = { onReplace, onCancel }
+}
+
+document.getElementById('Replace').addEventListener('click', () => {
+    if (pendingPopupAction?.onReplace) pendingPopupAction.onReplace()
+    document.getElementById('alert-popup').classList.add('hidden')
+    pendingPopupAction = null
+})
+
+document.getElementById('Cancel').addEventListener('click', () => {
+    if (pendingPopupAction?.onCancel) pendingPopupAction.onCancel()
+    document.getElementById('alert-popup').classList.add('hidden')
+    pendingPopupAction = null
+})
+
+// Handle .add_button clicks inside the detail panel via event delegation
+document.getElementById('detail_body').addEventListener('click', (e) => {
+    if (!e.target.classList.contains('add_button')) return
+    if (!activeCard) return
+
+    const name    = document.getElementById('detail_name').textContent
+    const type    = e.target.dataset.type
+    const isAddon = activeCard.hasAttribute('data-addon-name')
+    const btn     = e.target
+
+    // Add-ons are always allowed freely
+    if (isAddon) {
+        if (!booking.addons.some(a => a.name === name)) {
+            booking.addons.push({ name, type })
+            booking.addons_counter++
+            btn.textContent = 'Added!'
+            btn.disabled = true
+            markCardSelected(activeCard, type)
+            updateSelectedPanel()
+        }
+        return
+    }
+
+    // Already selected this exact item — do nothing
+    if (booking.services.some(s => s.name === name)) return
+
+    // Restoration pairs with anything — no conflict checks
+    if (name === 'Restoration') {
+        booking.services.push({ name, type })
+        booking.service_counter++
+        btn.textContent = 'Added!'
+        btn.disabled = true
+        markCardSelected(activeCard, type)
+        updateSelectedPanel()
+        return
+    }
+
+    // Find any currently selected non-Restoration service/package
+    const current = booking.services.find(s => s.name !== 'Restoration')
+
+    if (!current) {
+        booking.services.push({ name, type })
+        booking.service_counter++
+        btn.textContent = 'Added!'
+        btn.disabled = true
+        markCardSelected(activeCard, type)
+        updateSelectedPanel()
+        return
+    }
+
+    // Check if the two services qualify for a package upgrade
+    const upgrade = getUpgrade(current.name, name)
+    if (upgrade) {
+        showPopup(
+            `<strong>${current.name}</strong> + <strong>${name}</strong><br/><br/>qualifies for the <strong>${upgrade}</strong> package deal!<br/><br/>Would you like to upgrade?`,
+            () => {
+                clearCardSelected(findCard(current.name))
+                booking.services = booking.services.filter(s => s.name !== current.name)
+                booking.services.push({ name: upgrade, type })
+                btn.textContent = 'Added!'
+                btn.disabled = true
+                markCardSelected(findCard(upgrade), type)
+                updateSelectedPanel()
+            },
+            null
+        )
+        return
+    }
+
+    // Incompatible — prompt to replace or keep current
+    showPopup(
+        `<strong>${current.name}</strong><br/><br/>is already selected. Only one service or package can be booked at a time.<br/><br/>Would you like to replace it with <strong>${name}</strong>?`,
+        () => {
+            clearCardSelected(findCard(current.name))
+            booking.services = booking.services.filter(s => s.name !== current.name)
+            booking.services.push({ name, type })
+            btn.textContent = 'Added!'
+            btn.disabled = true
+            markCardSelected(activeCard, type)
+            updateSelectedPanel()
+        },
+        null
+    )
+})
+
+function updateSelectedPanel() {
+    document.getElementById('service_count').textContent = booking.service_counter
+    document.getElementById('addon_count').textContent   = booking.addons_counter
+    if (booking.service_counter + booking.addons_counter > 0) {
+        document.getElementById('selected_panel').classList.remove('hidden')
+    }
+}
+// Proceed button in the selected panel — hide service selection, show time slot section
+document.querySelector('#selected_panel .form_nav_buttons').addEventListener('click', () => {
+    document.getElementById('booking_container').classList.add('hidden')
+    document.getElementById('time_slot_section').classList.remove('hidden')
+})
+
+const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000
+const CLOSING_MINS = 19 * 60  // 7:00 PM
+
+function toMins(t) {
+    const [h, m] = t.split(':').map(Number)
+    return h * 60 + m
+}
+
+function toTimeStr(mins) {
+    const h = Math.floor(mins / 60)
+    const m = mins % 60
+    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`
+}
+
+// Short label: "9", "9:30", "12", "1", "1:30" ... "7"
+function formatTimeShort(t) {
+    const [h, m] = t.split(':').map(Number)
+    const hour = h > 12 ? h - 12 : h
+    return m === 0 ? `${hour}` : `${hour}:30`
+}
+
+function generateAllSlots() {
+    const slots = []
+    for (let h = 9; h < 19; h++) {
+        slots.push(`${String(h).padStart(2,'0')}:00`)
+        slots.push(`${String(h).padStart(2,'0')}:30`)
+    }
+    slots.push('19:00')
+    return slots
+}
+
+// Fetch available dates for the current calendar month and grey out the rest
+document.getElementById('booking_calendar').addEventListener('monthChanged', async (e) => {
+    const { year, month } = e.detail
+    const mainService = booking.services.find(s => s.name !== 'Restoration')
+    const params = new URLSearchParams({ year, month })
+    if (mainService) {
+        params.set('service', mainService.name)
+        params.set('type',    mainService.type)
+    }
+    const addonNames = booking.addons.map(a => a.name).join(',')
+    if (addonNames) params.set('addons', addonNames)
+    const res  = await fetch(`/available-dates?${params}`)
+    const data = await res.json()
+    document.getElementById('booking_calendar').setMarkedDates(data)
+})
+
+// ─── Time-block selection ─────────────────────────────────────────────────
+function selectTimeBlock(slotTime, startMins, endMins) {
+    document.querySelectorAll('.slot_button').forEach(b => b.classList.remove('slot-selected'))
+    document.querySelectorAll('.slot_button').forEach(b => {
+        const t = toMins(b.dataset.time)
+        if (t >= startMins && t < endMins) b.classList.add('slot-selected')
+    })
+    booking.start_time = slotTime
+}
+
+// ─── Time-conflict popup ──────────────────────────────────────────────────
+let pendingTimeSlot = null
+
+function showTimeWarning(slotTime, startMins, endMins) {
+    pendingTimeSlot = { slotTime, startMins, endMins }
+    document.getElementById('time-warning-popup').classList.remove('hidden')
+}
+
+document.getElementById('time-warning-yes').addEventListener('click', () => {
+    document.getElementById('time-warning-popup').classList.add('hidden')
+    if (pendingTimeSlot) {
+        const { slotTime, startMins, endMins } = pendingTimeSlot
+        pendingTimeSlot = null
+        selectTimeBlock(slotTime, startMins, endMins)
+        document.getElementById('time-followup-popup').classList.remove('hidden')
+    }
+})
+
+document.getElementById('time-warning-no').addEventListener('click', () => {
+    document.getElementById('time-warning-popup').classList.add('hidden')
+    pendingTimeSlot = null
+})
+
+document.getElementById('time-followup-ok').addEventListener('click', () => {
+    document.getElementById('time-followup-popup').classList.add('hidden')
+})
+
+// ─── Slot loader ──────────────────────────────────────────────────────────
+async function loadSlotsForDate(dateStr) {
+    const [y, mo, d] = dateStr.split('-').map(Number)
+
+    // Fix: compare calendar days (midnight-to-midnight) so the 14-day
+    // boundary is accurate regardless of the current time of day.
+    const todayMidnight = new Date()
+    todayMidnight.setHours(0, 0, 0, 0)
+    const selectedMidnight = new Date(y, mo - 1, d)
+    const diffDays = Math.round((selectedMidnight - todayMidnight) / (1000 * 60 * 60 * 24))
+
+    const notice      = document.getElementById('request_notice')
+    const backupInput = document.getElementById('backup_date_input')
+    if (diffDays >= 14) {
+        backupInput.min = dateStr
+        notice.classList.remove('hidden')
+    } else {
+        notice.classList.add('hidden')
+        booking.backup_date = null
+    }
+
+    // Build query params
+    const mainService = booking.services.find(s => s.name !== 'Restoration')
+    const params      = new URLSearchParams({ date: dateStr })
+    if (mainService) {
+        params.set('service', mainService.name)
+        params.set('type',    mainService.type)
+    }
+    const addonNames = booking.addons.map(a => a.name).join(',')
+    if (addonNames) params.set('addons', addonNames)
+
+    const res  = await fetch(`/available-slots?${params}`)
+    const { available, duration } = await res.json()
+
+    const container    = document.getElementById('time_slots')
+    container.innerHTML = ''
+
+    const isRequestDate = booking.date_type === 'request'
+    const availableSet  = new Set(available || [])
+    const slotsNeeded   = Math.ceil(duration / 30)
+
+    // For non-request dates with zero availability, bail out
+    if (!isRequestDate && availableSet.size === 0) {
+        container.innerHTML = '<p id="slot_prompt">No available times for this date.</p>'
+        return
+    }
+
+    // Prompt text
+    const promptEl = document.createElement('p')
+    promptEl.id = 'slot_prompt'
+    promptEl.textContent = isRequestDate
+        ? 'Pick any start time for your appointment block:'
+        : 'Gold — fits your full service block.  Grey — may conflict with availability.'
+    container.appendChild(promptEl)
+
+    // AM / PM groups
+    const amGroup = document.createElement('div')
+    amGroup.className = 'slot_group'
+    amGroup.innerHTML = '<span class="slot_group_label">Morning</span>'
+    const amGrid = document.createElement('div')
+    amGrid.className = 'slot_grid'
+    amGroup.appendChild(amGrid)
+
+    const pmGroup = document.createElement('div')
+    pmGroup.className = 'slot_group'
+    pmGroup.innerHTML = '<span class="slot_group_label">Afternoon &amp; Evening</span>'
+    const pmGrid = document.createElement('div')
+    pmGrid.className = 'slot_grid'
+    pmGroup.appendChild(pmGrid)
+
+    generateAllSlots().forEach(slotTime => {
+        const btn        = document.createElement('button')
+        btn.textContent  = formatTimeShort(slotTime)
+        btn.className    = 'slot_button'
+        btn.dataset.time = slotTime
+
+        const startMins = toMins(slotTime)
+        const endMins   = startMins + duration
+        const h         = parseInt(slotTime.split(':')[0])
+        const targetGrid = h < 12 ? amGrid : pmGrid
+
+        // Hard-disable start times where the block runs past closing
+        if (endMins > CLOSING_MINS) {
+            btn.classList.add('unavailable')
+            targetGrid.appendChild(btn)
+            return
+        }
+
+        if (isRequestDate) {
+            btn.addEventListener('click', () => selectTimeBlock(slotTime, startMins, endMins))
+        } else {
+            const blockFits = availableSet.has(slotTime) &&
+                Array.from({length: slotsNeeded}, (_, i) => toTimeStr(startMins + i * 30))
+                     .every(s => availableSet.has(s))
+
+            if (blockFits) {
+                btn.classList.add('slot-in-window')
+                btn.addEventListener('click', () => selectTimeBlock(slotTime, startMins, endMins))
+            } else {
+                btn.classList.add('slot-outside-window')
+                btn.addEventListener('click', () => showTimeWarning(slotTime, startMins, endMins))
+            }
+        }
+
+        targetGrid.appendChild(btn)
+    })
+
+    container.appendChild(amGroup)
+    container.appendChild(pmGroup)
+}
+
+// When a date is selected: show request popup for request dates, otherwise load slots directly
+document.getElementById('booking_calendar').addEventListener('dateSelected', async (e) => {
+    const { day, month, year, dateType } = e.detail
+    const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`
+    booking.date       = dateStr
+    booking.date_type  = dateType || 'available'
+    booking.start_time = null
+
+    if (dateType === 'request') {
+        document.getElementById('request-confirm-popup').classList.remove('hidden')
+        return
+    }
+
+    await loadSlotsForDate(dateStr)
+})
+
+document.getElementById('confirm-request-btn').addEventListener('click', async () => {
+    document.getElementById('request-confirm-popup').classList.add('hidden')
+    await loadSlotsForDate(booking.date)
+})
+
+document.getElementById('cancel-request-btn').addEventListener('click', () => {
+    document.getElementById('request-confirm-popup').classList.add('hidden')
+    booking.date      = null
+    booking.date_type = null
+})
+
+// Store backup date when changed
+document.getElementById('backup_date_input').addEventListener('change', (e) => {
+    booking.backup_date = e.target.value
+})
+
+// Time slot navigation
+document.getElementById('return_to_services').addEventListener('click', () => {
+    document.getElementById('time_slot_section').classList.add('hidden')
+    document.getElementById('booking_container').classList.remove('hidden')
+})
+
+document.getElementById('proceed_to_formula').addEventListener('click', () => {
+    document.getElementById('time_slot_section').classList.add('hidden')
+    document.getElementById('formula_selection').classList.remove('hidden')
+})
+
+document.querySelectorAll('.car_item').forEach(item => {
+    item.addEventListener('click', () => {
+        document.querySelectorAll('.car_item').forEach(c => {
+            c.classList.remove('selected')
+            c.querySelector('img').src = c.dataset.gold
+        })
+        item.classList.add('selected')
+        item.querySelector('img').src = item.dataset.black
+        booking.car = item.dataset.carName
+        document.getElementById('booking_container').classList.remove('hidden')
+    })
+})
+
+// ─── Data indexes for pricing ─────────────────────────────────────────────
+const _pageData = JSON.parse(document.getElementById('page-data').textContent);
+const servicesIndex = {};
+_pageData.services.forEach(s => servicesIndex[s.name] = s);
+_pageData.packages.forEach(p => servicesIndex[p.name] = p);
+const addOnsIndex = {};
+_pageData.add_ons.forEach(a => addOnsIndex[a.name] = a);
+const carIndex = {};
+_pageData.cars.forEach(c => carIndex[c.name] = c);
+
+// ─── Formula state ────────────────────────────────────────────────────────
+const formula = { foundation: null, scents: [], majesties_scent: null, sig_blend: null }
+
+// ─── Multi-car state ──────────────────────────────────────────────────────
+let completedCars = []
+
+function getCurrentCarBooking() {
+    return {
+        car: booking.car,
+        services: [...booking.services],
+        addons: [...booking.addons],
+        date: booking.date,
+        backup_date: booking.backup_date,
+        start_time: booking.start_time,
+        date_type: booking.date_type,
+        formula: { ...formula, scents: [...formula.scents] }
+    }
+}
+
+function calcCarPrice(cb) {
+    const svcEntry = cb.services.find(s => s.name !== 'Restoration')
+    if (!svcEntry) return 0
+    const svc = servicesIndex[svcEntry.name]
+    if (!svc) return 0
+    let base = svcEntry.type === 'duo' ? (svc.duo_price || 0) : (svc.solo_price || svc.duo_price || 0)
+    for (const addon of cb.addons || []) base += addOnsIndex[addon.name]?.price || 0
+    const mult = carIndex[cb.car]?.multiplier || 1.0
+    return Math.round(base * mult * 100) / 100
+}
+
+function fmtPrice(n) { return '$' + n.toFixed(2) }
+
+function fmtDateTime(cb) {
+    if (!cb.date) return '—'
+    const [y, m, d] = cb.date.split('-')
+    const mos = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']
+    let s = `${mos[parseInt(m)-1]} ${parseInt(d)}, ${y}`
+    if (cb.start_time) {
+        const [h, mn] = cb.start_time.split(':').map(Number)
+        const ap = h >= 12 ? 'PM' : 'AM'
+        const hr = h > 12 ? h - 12 : (h === 0 ? 12 : h)
+        s += ` at ${hr}:${String(mn).padStart(2,'0')} ${ap}`
+    }
+    if (cb.date_type === 'request') s += ' (Request)'
+    return s
+}
+
+function fmtFormula(f) {
+    if (!f) return '—'
+    if (f.sig_blend) return `Signature Blend: ${f.sig_blend}`
+    const parts = []
+    if (f.foundation) parts.push(`Foundation: ${f.foundation}`)
+    if (f.majesties_scent) parts.push(`Majesty's Scent: ${f.majesties_scent}`)
+    else if (f.scents?.length) parts.push(`Scents: ${f.scents.join(', ')}`)
+    return parts.join(' | ') || 'None selected'
+}
+
+// ─── Formula tab nav ──────────────────────────────────────────────────────
+document.querySelectorAll('.formula_tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+        if (tab.classList.contains('tab-disabled')) return
+        document.querySelectorAll('.formula_tab').forEach(t => t.classList.remove('active'))
+        document.querySelectorAll('.formula_panel').forEach(p => p.classList.add('hidden'))
+        tab.classList.add('active')
+        document.getElementById('tab_' + tab.dataset.tab).classList.remove('hidden')
+    })
+})
+
+// Foundation (pick 1)
+document.querySelectorAll('[data-formula-type="foundation"]').forEach(item => {
+    item.addEventListener('click', () => {
+        if (item.classList.contains('formula-disabled')) return
+        document.querySelectorAll('[data-formula-type="foundation"]').forEach(i => i.classList.remove('formula-selected'))
+        item.classList.add('formula-selected')
+        formula.foundation = item.dataset.formulaName
+    })
+})
+
+// Scents (up to 4) — clears Majesty's Scent if one was picked
+document.querySelectorAll('[data-formula-type="scent"]').forEach(item => {
+    item.addEventListener('click', () => {
+        if (item.classList.contains('formula-disabled')) return
+        if (item.classList.contains('formula-selected')) {
+            item.classList.remove('formula-selected')
+            formula.scents = formula.scents.filter(s => s !== item.dataset.formulaName)
+        } else {
+            if (formula.scents.length >= 4) return
+            document.querySelectorAll('[data-formula-type="majesties_scent"]').forEach(i => i.classList.remove('formula-selected'))
+            formula.majesties_scent = null
+            item.classList.add('formula-selected')
+            formula.scents.push(item.dataset.formulaName)
+        }
+    })
+})
+
+// Majesty's Scents (replace individual scents — foundation still choosable)
+document.querySelectorAll('[data-formula-type="majesties_scent"]').forEach(item => {
+    item.addEventListener('click', () => {
+        if (item.classList.contains('formula-disabled')) return
+        if (item.classList.contains('formula-selected')) {
+            item.classList.remove('formula-selected')
+            formula.majesties_scent = null
+        } else {
+            document.querySelectorAll('[data-formula-type="scent"]').forEach(i => i.classList.remove('formula-selected'))
+            document.querySelectorAll('[data-formula-type="majesties_scent"]').forEach(i => i.classList.remove('formula-selected'))
+            formula.scents = []
+            formula.majesties_scent = item.dataset.formulaName
+            item.classList.add('formula-selected')
+        }
+    })
+})
+
+// Signature Blends (replace both foundation AND scents — disables those tabs)
+document.querySelectorAll('[data-formula-type="sig_blend"]').forEach(item => {
+    item.addEventListener('click', () => {
+        if (item.classList.contains('formula-selected')) {
+            item.classList.remove('formula-selected')
+            formula.sig_blend = null
+            document.querySelectorAll('.formula_tab[data-tab="foundations"], .formula_tab[data-tab="scents"]').forEach(t => t.classList.remove('tab-disabled'))
+            document.querySelectorAll('[data-formula-type="foundation"], [data-formula-type="scent"], [data-formula-type="majesties_scent"]').forEach(i => i.classList.remove('formula-disabled'))
+        } else {
+            document.querySelectorAll('[data-formula-type="foundation"]').forEach(i => i.classList.remove('formula-selected'))
+            document.querySelectorAll('[data-formula-type="scent"]').forEach(i => i.classList.remove('formula-selected'))
+            document.querySelectorAll('[data-formula-type="majesties_scent"]').forEach(i => i.classList.remove('formula-selected'))
+            document.querySelectorAll('[data-formula-type="sig_blend"]').forEach(i => i.classList.remove('formula-selected'))
+            formula.foundation = null
+            formula.scents = []
+            formula.majesties_scent = null
+            formula.sig_blend = item.dataset.formulaName
+            item.classList.add('formula-selected')
+            document.querySelectorAll('.formula_tab[data-tab="foundations"], .formula_tab[data-tab="scents"]').forEach(t => t.classList.add('tab-disabled'))
+            document.querySelectorAll('[data-formula-type="foundation"], [data-formula-type="scent"], [data-formula-type="majesties_scent"]').forEach(i => i.classList.add('formula-disabled'))
+        }
+    })
+})
+
+// Formula navigation buttons
+document.getElementById('formula_return').addEventListener('click', () => {
+    document.getElementById('formula_selection').classList.add('hidden')
+    document.getElementById('time_slot_section').classList.remove('hidden')
+})
+
+document.getElementById('formula_proceed').addEventListener('click', () => {
+    document.getElementById('formula_selection').classList.add('hidden')
+    buildConfirmSummary()
+    document.getElementById('confirm_booking').classList.remove('hidden')
+})
+
+// ─── Confirm summary ──────────────────────────────────────────────────────
+function buildConfirmSummary() {
+    const cb = getCurrentCarBooking()
+    document.getElementById('sum_car').textContent = cb.car || '—'
+    const svcEntry = cb.services.find(s => s.name !== 'Restoration')
+    const resEntry = cb.services.find(s => s.name === 'Restoration')
+    let svcText = svcEntry ? `${svcEntry.name} (${svcEntry.type})` : ''
+    if (resEntry) svcText += (svcText ? ' + ' : '') + 'Restoration'
+    document.getElementById('sum_service').textContent = svcText || '—'
+    document.getElementById('sum_addons').textContent = cb.addons.length ? cb.addons.map(a => a.name).join(', ') : 'None'
+    document.getElementById('sum_time').textContent = fmtDateTime(cb)
+    document.getElementById('sum_formula').textContent = fmtFormula(cb.formula)
+    buildCompletedCarsList()
+}
+
+function buildCompletedCarsList() {
+    const list = document.getElementById('completed_cars_list')
+    list.innerHTML = ''
+    if (!completedCars.length) return
+    const heading = document.createElement('p')
+    heading.className = 'step-title'
+    heading.style.marginBottom = '12px'
+    heading.textContent = 'Cars Added:'
+    list.appendChild(heading)
+    completedCars.forEach((car, i) => {
+        const card = document.createElement('div')
+        card.className = 'booking_car_card completed_car_card'
+        const svcLine = car.services.map(s => s.type ? `${s.name} (${s.type})` : s.name).join(', ')
+        card.innerHTML = `
+            <div class="completed_car_header">Car ${i + 1}: ${car.car}</div>
+            <div class="completed_car_detail">${svcLine}</div>
+            <div class="completed_car_detail">${fmtDateTime(car)}</div>
+            <div class="completed_car_detail">${fmtFormula(car.formula)}</div>
+        `
+        list.appendChild(card)
+    })
+}
+
+// Edit buttons
+document.getElementById('current_car_summary').addEventListener('click', e => {
+    if (!e.target.classList.contains('edit_btn')) return
+    const step = e.target.dataset.step
+    document.getElementById('confirm_booking').classList.add('hidden')
+    if (step === 'car') {
+        document.getElementById('booking_container').classList.add('hidden')
+        document.getElementById('car_selection').scrollIntoView({ behavior: 'smooth' })
+    } else if (step === 'service') {
+        document.getElementById('booking_container').classList.remove('hidden')
+    } else if (step === 'time') {
+        document.getElementById('time_slot_section').classList.remove('hidden')
+    } else if (step === 'formula') {
+        document.getElementById('formula_selection').classList.remove('hidden')
+    }
+})
+
+// Add another car
+document.getElementById('add_another_car_btn').addEventListener('click', () => {
+    completedCars.push(getCurrentCarBooking())
+    resetCurrentBooking()
+    document.getElementById('confirm_booking').classList.add('hidden')
+    document.getElementById('car_selection').scrollIntoView({ behavior: 'smooth' })
+})
+
+function resetCurrentBooking() {
+    booking.car = null
+    booking.services = []
+    booking.addons = []
+    booking.service_counter = 0
+    booking.addons_counter = 0
+    booking.date = null
+    booking.backup_date = null
+    booking.start_time = null
+    booking.date_type = null
+    Object.assign(formula, { foundation: null, scents: [], majesties_scent: null, sig_blend: null })
+    document.querySelectorAll('.car_item').forEach(c => {
+        c.classList.remove('selected')
+        c.querySelector('img').src = c.dataset.gold
+    })
+    document.querySelectorAll('.service_item').forEach(clearCardSelected)
+    document.getElementById('service_count').textContent = '0'
+    document.getElementById('addon_count').textContent = '0'
+    document.getElementById('selected_panel').classList.add('hidden')
+    document.getElementById('detail_panel').classList.add('hidden')
+    document.getElementById('booking_container').classList.add('hidden')
+    document.querySelectorAll('.formula_item').forEach(i => i.classList.remove('formula-selected', 'formula-disabled'))
+    document.querySelectorAll('.formula_tab').forEach(t => t.classList.remove('tab-disabled', 'active'))
+    document.querySelector('.formula_tab[data-tab="foundations"]').classList.add('active')
+    document.querySelectorAll('.formula_panel').forEach(p => p.classList.add('hidden'))
+    document.getElementById('tab_foundations').classList.remove('hidden')
+    document.getElementById('time_slots').innerHTML = '<p id="slot_prompt">Select a date to see available times.</p>'
+    document.getElementById('request_notice').classList.add('hidden')
+}
+
+// Proceed to final confirmation
+document.getElementById('proceed_to_final_btn').addEventListener('click', () => {
+    const allCars = [...completedCars, getCurrentCarBooking()]
+    document.getElementById('confirm_booking').classList.add('hidden')
+    buildFinalConfirmation(allCars)
+    document.getElementById('final_confirmation').classList.remove('hidden')
+})
+
+function buildFinalConfirmation(allCars) {
+    const carsList = document.getElementById('final_cars_list')
+    carsList.innerHTML = ''
+    const pricingRows = document.getElementById('final_pricing_rows')
+    pricingRows.innerHTML = ''
+    let total = 0
+    allCars.forEach((car, i) => {
+        const price = calcCarPrice(car)
+        total += price
+        const svcLine = car.services.map(s => s.type ? `${s.name} (${s.type})` : s.name).join(', ') || '—'
+        const addonLine = car.addons.length ? car.addons.map(a => a.name).join(', ') : ''
+        const card = document.createElement('div')
+        card.className = 'booking_car_card'
+        card.innerHTML = `
+            <div class="final_car_header">Car ${i + 1}: ${car.car}</div>
+            <div class="summary_row"><span class="summary_label">Service</span><span>${svcLine}</span></div>
+            ${addonLine ? `<div class="summary_row"><span class="summary_label">Add-ons</span><span>${addonLine}</span></div>` : ''}
+            <div class="summary_row"><span class="summary_label">Date &amp; Time</span><span>${fmtDateTime(car)}</span></div>
+            <div class="summary_row"><span class="summary_label">Formula</span><span>${fmtFormula(car.formula)}</span></div>
+            <div class="summary_row"><span class="summary_label">Subtotal</span><span class="price_highlight">${fmtPrice(price)}</span></div>
+        `
+        carsList.appendChild(card)
+        const row = document.createElement('div')
+        row.className = 'pricing_row'
+        row.innerHTML = `<span>Car ${i + 1} – ${car.car}</span><span>${fmtPrice(price)}</span>`
+        pricingRows.appendChild(row)
+    })
+    document.getElementById('final_total_amount').textContent = fmtPrice(total)
+}
+
+document.getElementById('return_to_confirm_btn').addEventListener('click', () => {
+    document.getElementById('final_confirmation').classList.add('hidden')
+    buildConfirmSummary()
+    document.getElementById('confirm_booking').classList.remove('hidden')
+})
+
+document.getElementById('submit_booking_btn').addEventListener('click', async () => {
+    const customerName  = document.getElementById('customer_name_input').value.trim()
+    const customerEmail = document.getElementById('customer_email_input').value.trim()
+    const customerPhone = document.getElementById('customer_phone_input').value.trim()
+    const errorEl = document.getElementById('customer_info_error')
+
+    if (!customerName || !customerEmail) {
+        errorEl.classList.remove('hidden')
+        return
+    }
+    errorEl.classList.add('hidden')
+
+    const allCars = [...completedCars, getCurrentCarBooking()]
+    const btn = document.getElementById('submit_booking_btn')
+    btn.disabled = true
+    btn.textContent = 'Submitting…'
+    try {
+        const res = await fetch('/submit-booking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                cars: allCars,
+                customer: {
+                    name:            customerName,
+                    email:           customerEmail,
+                    phone:           customerPhone,
+                    service_address: document.getElementById('service_address_input').value.trim(),
+                    service_city:    document.getElementById('service_city_input').value.trim(),
+                    service_state:   document.getElementById('service_state_input').value.trim().toUpperCase(),
+                }
+            })
+        })
+        const data = await res.json()
+        document.getElementById('final_confirmation').classList.add('hidden')
+        const display = document.getElementById('appt_ids_display')
+        display.innerHTML = data.appointments.map((appt, i) =>
+            `<p>Car ${i + 1} Appointment ID: <strong>${appt.appt_id}</strong></p>`
+        ).join('')
+        document.getElementById('thank_you_page').classList.remove('hidden')
+    } catch (err) {
+        btn.disabled = false
+        btn.textContent = 'Confirm Booking'
+        alert('Submission failed — please try again.')
+    }
+})
+
+</script>
+{% endblock %}

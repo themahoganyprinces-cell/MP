@@ -1,0 +1,227 @@
+{% extends "CMDmanage.html" %}
+{% block head %}<title>Employees — Manage</title>{% endblock %}
+{% block content %}
+
+<h1 class="page_title">Employees</h1>
+
+<!-- ── Active Employees ─────────────────────────────────────────── -->
+<div class="section_card">
+    <h2>Active Employees ({{ employees|length }})</h2>
+    {% if employees %}
+    <table class="data_table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Position</th>
+                <th>Branch Access</th>
+                <th>Role</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for emp in employees %}
+        <tr id="row_{{ emp.employee_code }}">
+            <td>
+                <img class="emp_avatar_sm"
+                     src="{{ url_for('static', filename=emp.avatar if emp.avatar else 'PNG/employee_avatar.png') }}"
+                     alt="">
+            </td>
+            <td><strong style="color:white">{{ emp.first_name }} {{ emp.last_name }}</strong><br>
+                <span style="font-size:11px;color:#555">{{ emp.email }}</span></td>
+            <td style="color:#666;font-size:12px">{{ emp.employee_code }}</td>
+            <td>
+                <span class="badge badge_grey">{{ emp_cmd_pos.get(emp.employee_code) or '—' }}</span>
+            </td>
+            <td>
+                {% if emp.cmd_access %}<span class="badge badge_yellow" style="margin:1px">CMD</span>{% endif %}
+                {% if emp.mmm_access %}<span class="badge badge_yellow" style="margin:1px">MMM</span>{% endif %}
+                {% if emp.mce_access %}<span class="badge badge_yellow" style="margin:1px">MCE</span>{% endif %}
+                {% if emp.mp_access  %}<span class="badge badge_yellow" style="margin:1px">MP</span>{% endif %}
+            </td>
+            <td>
+                {% if emp.is_founder %}
+                    <span class="badge badge_gold">Founder</span>
+                {% elif emp.manage_access %}
+                    <span class="badge badge_grey">Manager</span>
+                {% else %}
+                    <span class="badge badge_grey">Employee</span>
+                {% endif %}
+            </td>
+            <td>
+                <button class="btn_ghost" onclick="toggleEdit('{{ emp.employee_code }}')">Edit</button>
+                <form method="POST" action="{{ url_for('manage_employee_remove', emp_code=emp.employee_code) }}"
+                      style="display:inline"
+                      onsubmit="return confirm('Remove {{ emp.first_name }} {{ emp.last_name }}? This cannot be undone.')">
+                    <button class="btn_danger" type="submit">Remove</button>
+                </form>
+            </td>
+        </tr>
+        <!-- Inline edit row (hidden by default) -->
+        <tr class="edit_row" id="edit_{{ emp.employee_code }}" style="display:none">
+            <td colspan="7">
+                <form method="POST" action="{{ url_for('manage_employee_edit', emp_code=emp.employee_code) }}" class="mform">
+                    <div class="edit_form_grid">
+                        <div>
+                            <label>CMD Position</label>
+                            <select name="position">
+                                <option value="">— None —</option>
+                                {% for pos in cmd_positions %}
+                                <option value="{{ pos }}"
+                                  {% if emp_cmd_pos.get(emp.employee_code) == pos %}selected{% endif %}>
+                                  {{ pos }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div>
+                            <label>CMD Access</label>
+                            <input type="checkbox" name="cmd_access" {% if emp.cmd_access %}checked{% endif %}>
+                        </div>
+                        <div>
+                            <label>MMM Access</label>
+                            <input type="checkbox" name="mmm_access" {% if emp.mmm_access %}checked{% endif %}>
+                        </div>
+                        <div>
+                            <label>MCE Access</label>
+                            <input type="checkbox" name="mce_access" {% if emp.mce_access %}checked{% endif %}>
+                        </div>
+                        <div>
+                            <label>MP Access</label>
+                            <input type="checkbox" name="mp_access" {% if emp.mp_access %}checked{% endif %}>
+                        </div>
+                        {% if is_founder %}
+                        <div>
+                            <label>Manage Access</label>
+                            <input type="checkbox" name="manage_access" {% if emp.manage_access %}checked{% endif %}>
+                        </div>
+                        <div>
+                            <label>Founder</label>
+                            <input type="checkbox" name="is_founder" {% if emp.is_founder %}checked{% endif %}>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <label>Reset Password <span style="color:#555">(6+ chars)</span></label>
+                            <input type="password" name="reset_password" placeholder="Leave blank to keep">
+                        </div>
+                    </div>
+                    <button class="btn_gold" type="submit">Save Changes</button>
+                    <button class="btn_ghost" type="button" onclick="toggleEdit('{{ emp.employee_code }}')">Cancel</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#555">No active employees yet.</p>
+    {% endif %}
+</div>
+
+<!-- ── Pending Signups ──────────────────────────────────────────── -->
+{% if pending %}
+<div class="section_card">
+    <h2>Pending Signup Links ({{ pending|length }})</h2>
+    <table class="data_table">
+        <thead>
+            <tr><th>Branch</th><th>Number</th><th>Role</th><th>Link</th></tr>
+        </thead>
+        <tbody>
+        {% for p in pending %}
+        <tr>
+            <td>{{ p.branch.upper() }}</td>
+            <td>{{ p.employee_number }}</td>
+            <td>
+                {% if p.is_founder %}<span class="badge badge_gold">Founder</span>
+                {% elif p.manage_access %}<span class="badge badge_grey">Manager</span>
+                {% else %}<span class="badge badge_grey">Employee</span>{% endif %}
+            </td>
+            <td><a href="{{ p.link }}" target="_blank" style="color:#FCBE28;font-size:12px">{{ p.link }}</a></td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<!-- ── Add New Employee ─────────────────────────────────────────── -->
+<div class="section_card">
+    <h2>Add New Employee</h2>
+
+    {% if generated_link %}
+        <div class="success_banner">
+            <i class="fa-solid fa-link"></i> Signup link ready:
+            <a href="{{ generated_link }}" target="_blank" style="color:#FCBE28">{{ generated_link }}</a>
+        </div>
+        <a href="{{ url_for('manage_employees') }}" class="btn_ghost">Add Another</a>
+
+    {% elif new_number %}
+        <p style="color:#aaa;margin:0 0 14px">
+            New code preview: <strong style="color:#FCBE28">{{ branch.upper() }}-??-{{ new_number }}</strong>
+            (location code set during signup)
+        </p>
+        <form method="POST" action="{{ url_for('generate_employee_link') }}" class="mform" style="max-width:420px">
+            <input type="hidden" name="branch" value="{{ branch }}">
+            <input type="hidden" name="employee_number" value="{{ new_number }}">
+            <input type="hidden" name="manage_access" value="{{ 'true' if manage_access else 'false' }}">
+            <input type="hidden" name="is_founder" value="{{ 'true' if grant_founder else 'false' }}">
+            <input type="hidden" name="position" value="{{ position }}">
+            <button class="btn_gold" type="submit"><i class="fa-solid fa-link"></i> Generate Signup Link</button>
+        </form>
+
+    {% else %}
+        <form method="POST" action="{{ url_for('generate_employee_preview') }}" class="mform" style="max-width:420px">
+            <div>
+                <label>Branch</label>
+                <select name="branch" id="branch_select" onchange="updatePositions()">
+                    <option value="mp">MP — The Mahogany Princes</option>
+                    <option value="cmd">CMD — Crown Mahogany Detailing</option>
+                    <option value="mmm">MMM — Mahogany Multimedia Management</option>
+                    <option value="mce">MCE — Mahogany Crown Estates</option>
+                </select>
+            </div>
+            <div>
+                <label>Position</label>
+                <select name="position" id="position_select">
+                    <option value="Staff">Staff</option>
+                </select>
+            </div>
+            {% if is_founder %}
+            <div style="display:flex;gap:20px;align-items:center">
+                <label style="display:flex;align-items:center;gap:6px;color:#aaa">
+                    <input type="checkbox" name="manage_access"> Grant Manage Access
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;color:#aaa">
+                    <input type="checkbox" name="is_founder"> Grant Founder Status
+                </label>
+            </div>
+            {% endif %}
+            <div>
+                <button class="btn_gold" type="submit"><i class="fa-solid fa-user-plus"></i> Preview &amp; Generate</button>
+            </div>
+        </form>
+    {% endif %}
+</div>
+
+<script type="application/json" id="branch_pos_data">{{ branch_positions | tojson }}</script>
+<script>
+const BRANCH_POSITIONS = JSON.parse(document.getElementById('branch_pos_data').textContent);
+
+function updatePositions() {
+    const branch  = document.getElementById('branch_select').value;
+    const sel     = document.getElementById('position_select');
+    const options = BRANCH_POSITIONS[branch] || ['Staff'];
+    sel.innerHTML = options.map(function(p) {
+        return '<option value="' + p + '">' + p + '</option>';
+    }).join('');
+}
+
+function toggleEdit(code) {
+    const row = document.getElementById('edit_' + code);
+    row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+document.addEventListener('DOMContentLoaded', updatePositions);
+</script>
+{% endblock %}

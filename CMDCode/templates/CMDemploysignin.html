@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="{{ url_for('static', filename='PNG/CMDlogo.png') }}">
+        <script src="https://kit.fontawesome.com/d303cba5a4.js" crossorigin="anonymous"></script>
+        <title>Employee Sign In</title>
+        <style>
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+
+            body {
+                background: #000;
+                color: #FCBE28;
+                font-family: Arial, sans-serif;
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+            }
+
+            nav {
+                border-bottom: 1px solid #FCBE28;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 10px 20px;
+                flex-shrink: 0;
+            }
+            #navbrand { display: flex; align-items: center; gap: 12px; }
+            .navbutton {
+                color: #FCBE28;
+                text-decoration: none;
+                font-size: 16px;
+                padding: 6px 4px;
+                border-bottom: 2px solid transparent;
+                transition: border-color 0.2s;
+            }
+            .navbutton:hover { border-bottom-color: #FCBE28; }
+
+            /* ── Center the form in the remaining space ── */
+            #signincontainer {
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: 40px 20px;
+            }
+
+            .signin_card {
+                background: #111;
+                border: 1px solid #2a2a2a;
+                border-radius: 12px;
+                padding: 40px 44px;
+                width: 100%;
+                max-width: 400px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 6px;
+            }
+
+            .signin_logo {
+                width: 60px;
+                height: 60px;
+                margin-bottom: 10px;
+            }
+
+            .signin_card h1 {
+                font-size: 20px;
+                color: #FCBE28;
+                font-weight: bold;
+                margin-bottom: 6px;
+                letter-spacing: 0.5px;
+            }
+
+            .signin_card form {
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                margin-top: 20px;
+            }
+
+            .signin_card label {
+                display: block;
+                font-size: 12px;
+                color: #777;
+                margin-bottom: 5px;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+
+            .signin_card input {
+                width: 100%;
+                background: #1a1a1a;
+                color: white;
+                border: 1px solid #2a2a2a;
+                border-radius: 6px;
+                padding: 10px 14px;
+                font-size: 14px;
+                font-family: inherit;
+                transition: border-color 0.15s;
+            }
+            .signin_card input:focus {
+                outline: none;
+                border-color: #FCBE28;
+            }
+            .signin_card input::placeholder { color: #444; }
+
+            .signin_card button[type="submit"] {
+                width: 100%;
+                background: #FCBE28;
+                color: black;
+                border: none;
+                border-radius: 6px;
+                padding: 11px;
+                font-size: 15px;
+                font-weight: bold;
+                cursor: pointer;
+                margin-top: 6px;
+                transition: background 0.15s;
+            }
+            .signin_card button[type="submit"]:hover { background: #e0a800; }
+
+            .signin-error {
+                color: #e74c3c;
+                font-size: 13px;
+                background: #220000;
+                border: 1px solid #c0392b;
+                border-radius: 6px;
+                padding: 8px 14px;
+                width: 100%;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <nav>
+            <div id="navbrand">
+                <img id="navicon" src="{{ url_for('static', filename='PNG/CMDlogo.png') }}"
+                     alt="Crown Mahogany Detailing" width="40" height="40">
+            </div>
+            <div>
+                <a class="navbutton" href="{{ url_for('home') }}">Return to Home</a>
+            </div>
+        </nav>
+
+        <div id="signincontainer">
+            <div class="signin_card">
+                <img class="signin_logo"
+                     src="{{ url_for('static', filename='PNG/CMDlogo.png') }}"
+                     alt="CMD">
+                <h1>Employee Sign In</h1>
+
+                {% if error %}
+                <p class="signin-error">{{ error }}</p>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('employee_signin') }}">
+                    <div>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required
+                               placeholder="you@themahoganyprinces.com">
+                    </div>
+                    <div>
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password"
+                               required placeholder="••••••••">
+                    </div>
+                    <button type="submit">Sign In</button>
+                </form>
+            </div>
+        </div>
+    </body>
+</html>

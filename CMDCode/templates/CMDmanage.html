@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" href="{{ url_for('static', filename='PNG/CMDlogo.png') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename='CMDmanage.css') }}">
+        <script src="https://kit.fontawesome.com/d303cba5a4.js" crossorigin="anonymous"></script>
+        {% block head %}{% endblock %}
+    </head>
+    <body>
+        <nav id="manage_nav">
+            <div id="manage_brand">
+                <img src="{{ url_for('static', filename='PNG/CMDlogo.png') }}" alt="CMD" width="40" height="40">
+                <span id="manage_label">Manage</span>
+            </div>
+
+            <div id="manage_tabs">
+                <a class="mtab {% if active_tab == 'employees' %}active{% endif %}"
+                   href="{{ url_for('manage_employees') }}">
+                    <i class="fa-solid fa-users"></i> Employees
+                </a>
+                <a class="mtab {% if active_tab == 'services' %}active{% endif %}"
+                   href="{{ url_for('manage_services') }}">
+                    <i class="fa-solid fa-screwdriver-wrench"></i> Services
+                </a>
+                <a class="mtab {% if active_tab == 'inventory' %}active{% endif %}"
+                   href="{{ url_for('manage_inventory') }}">
+                    <i class="fa-solid fa-boxes-stacked"></i> Inventory
+                </a>
+                <a class="mtab {% if active_tab == 'jobs' %}active{% endif %}"
+                   href="{{ url_for('manage_jobs') }}">
+                    <i class="fa-solid fa-briefcase"></i> Jobs
+                </a>
+                <a class="mtab {% if active_tab == 'availability' %}active{% endif %}"
+                   href="{{ url_for('manage_availability') }}">
+                    <i class="fa-solid fa-calendar-days"></i> Availability
+                </a>
+            </div>
+
+            <div id="manage_account">
+                {% if manager %}
+                <span id="manager_name">{{ manager.first_name }} {{ manager.last_name }}</span>
+                {% endif %}
+                <a class="manage_action_link" href="{{ url_for('employee_dashboard') }}">
+                    <i class="fa-solid fa-hard-hat"></i> Switch to Work
+                </a>
+                <a class="manage_action_link" href="{{ url_for('employee_signout') }}">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </div>
+        </nav>
+
+        <main id="manage_main">
+            {% block content %}{% endblock %}
+        </main>
+    </body>
+</html>

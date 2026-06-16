@@ -1,0 +1,265 @@
+{% extends "CMDmanage.html" %}
+{% block head %}<title>Inventory — Manage</title>{% endblock %}
+{% block content %}
+
+<h1 class="page_title">Inventory</h1>
+
+{% if msg %}
+<div class="success_banner"><i class="fa-solid fa-check"></i> {{ msg }}</div>
+{% endif %}
+
+{# ── Pending Stock Requests ──────────────────────────────────────────────── #}
+{% if pending_requests %}
+<div class="section_card" style="margin-bottom:28px;border-color:#5a4510;">
+    <h2 style="color:#FCBE28;margin-top:0;">
+        <i class="fa-solid fa-inbox"></i> Stock Requests
+        <span style="background:#FCBE28;color:black;font-size:12px;font-weight:bold;
+                     border-radius:12px;padding:2px 8px;margin-left:8px;">
+            {{ pending_requests|length }}
+        </span>
+    </h2>
+    <table class="data_table">
+        <thead>
+            <tr>
+                <th>Employee</th>
+                <th>Category</th>
+                <th>Item</th>
+                <th>Requested</th>
+                <th>Note</th>
+                <th>Give Qty</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for entry in pending_requests %}
+        {% set r = entry.req %}
+        {% set e = entry.emp %}
+        {% set in_stock = inventory.get(r.category, {}).get(r.item, {}).get('Quantity', 0) %}
+        <tr>
+            <td style="color:#ccc;">
+                {{ e.first_name ~ ' ' ~ e.last_name if e else r.employee_code }}<br>
+                <small style="color:#555;">{{ r.employee_code }}</small>
+            </td>
+            <td style="color:#888;">{{ r.category }}</td>
+            <td><strong style="color:#ccc;">{{ r.item }}</strong></td>
+            <td>{{ r.quantity_requested }}
+                <small style="color:#555;"> / {{ in_stock }} in stock</small>
+            </td>
+            <td style="color:#777;font-size:12px;">{{ r.note or '—' }}</td>
+            <td>
+                <form method="POST" class="inline_form" id="fulfill_{{ r.id }}">
+                    <input type="hidden" name="action" value="fulfill_request">
+                    <input type="hidden" name="request_id" value="{{ r.id }}">
+                    <input class="inline_input" type="number" name="give_qty"
+                           value="{{ [r.quantity_requested, in_stock]|min }}"
+                           min="1" max="{{ in_stock }}" style="width:60px;">
+                </form>
+            </td>
+            <td>
+                <div style="display:flex;gap:6px;">
+                    <button class="btn_ghost" type="submit" form="fulfill_{{ r.id }}"
+                            style="padding:4px 10px;"
+                            {% if in_stock == 0 %}disabled title="Out of stock"{% endif %}>
+                        <i class="fa-solid fa-check"></i> Give
+                    </button>
+                    <form method="POST" style="display:inline;"
+                          onsubmit="return confirm('Deny this request?')">
+                        <input type="hidden" name="action" value="deny_request">
+                        <input type="hidden" name="request_id" value="{{ r.id }}">
+                        <button class="btn_ghost" type="submit"
+                                style="padding:4px 10px;color:#c0392b;border-color:#441111;">
+                            <i class="fa-solid fa-xmark"></i> Deny
+                        </button>
+                    </form>
+                </div>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{# ── Per-Category Tables ─────────────────────────────────────────────────── #}
+{% for category, items in inventory.items() %}
+{% set meta = category_meta.get(category, {}) %}
+<div class="section_card">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;
+                margin-bottom:12px;gap:16px;flex-wrap:wrap;">
+        <div>
+            <h2 style="margin:0 0 6px;">{{ category }}</h2>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                {% if meta.get('client_visible', true) %}
+                <span style="background:#1a2a1a;border:1px solid #2a5a2a;color:#5cb85c;
+                             font-size:11px;padding:2px 8px;border-radius:10px;">
+                    <i class="fa-solid fa-eye"></i> Client visible
+                </span>
+                {% else %}
+                <span style="background:#1a1a1a;border:1px solid #333;color:#555;
+                             font-size:11px;padding:2px 8px;border-radius:10px;">
+                    <i class="fa-solid fa-eye-slash"></i> Hidden from clients
+                </span>
+                {% endif %}
+                {% if meta.get('employee_stock', false) %}
+                <span style="background:#1a1400;border:1px solid #5a4510;color:#FCBE28;
+                             font-size:11px;padding:2px 8px;border-radius:10px;">
+                    <i class="fa-solid fa-box"></i> Employee stock
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <form method="POST" style="display:flex;align-items:center;gap:10px;
+                                       background:#111;border:1px solid #2a2a2a;
+                                       border-radius:6px;padding:6px 12px;">
+                <input type="hidden" name="action" value="update_category_meta">
+                <input type="hidden" name="category" value="{{ category }}">
+                <label style="display:flex;align-items:center;gap:5px;color:#aaa;
+                              font-size:12px;cursor:pointer;">
+                    <input type="checkbox" name="client_visible"
+                           {% if meta.get('client_visible', true) %}checked{% endif %}
+                           style="accent-color:#FCBE28;">
+                    Client visible
+                </label>
+                <label style="display:flex;align-items:center;gap:5px;color:#aaa;
+                              font-size:12px;cursor:pointer;">
+                    <input type="checkbox" name="employee_stock"
+                           {% if meta.get('employee_stock', false) %}checked{% endif %}
+                           style="accent-color:#FCBE28;">
+                    Employee stock
+                </label>
+                <button class="btn_ghost" type="submit" style="padding:3px 10px;font-size:12px;">
+                    Save
+                </button>
+            </form>
+            {% if is_founder %}
+            <form method="POST" style="display:inline;"
+                  onsubmit="return confirm('Remove the entire {{ category }} category and all its items?')">
+                <input type="hidden" name="action" value="remove_category">
+                <input type="hidden" name="category" value="{{ category }}">
+                <button type="submit" class="btn_ghost"
+                        style="padding:4px 10px;color:#c0392b;border-color:#441111;">
+                    <i class="fa-solid fa-trash"></i> Remove Category
+                </button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <table class="data_table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Reserved</th>
+                <th>Available</th>
+                <th>Update</th>
+                {% if is_founder %}<th></th>{% endif %}
+            </tr>
+        </thead>
+        <tbody>
+        {% for item_name, item_data in items.items() %}
+        {% set qty = item_data.get('Quantity', 0) %}
+        {% set res = item_data.get('Reserved', 0) %}
+        {% set avail = qty - res %}
+        <tr>
+            <td><strong style="color:#ccc">{{ item_name }}</strong></td>
+            <td>{{ qty }}</td>
+            <td style="color:#888">{{ res }}</td>
+            <td>
+                <span class="badge {% if avail <= 0 %}badge_red{% elif avail <= 2 %}badge_yellow{% else %}badge_green{% endif %}">
+                    {{ avail }}
+                </span>
+            </td>
+            <td>
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                    <form method="POST" class="inline_form">
+                        <input type="hidden" name="action" value="update_qty">
+                        <input type="hidden" name="category" value="{{ category }}">
+                        <input type="hidden" name="item" value="{{ item_name }}">
+                        <input class="inline_input" type="number" name="quantity"
+                               value="{{ qty }}" min="0" style="width:70px">
+                        <button class="btn_ghost" type="submit" title="Set quantity" style="padding:5px 10px">
+                            Qty <i class="fa-solid fa-check"></i>
+                        </button>
+                    </form>
+                    <form method="POST" class="inline_form">
+                        <input type="hidden" name="action" value="update_reserved">
+                        <input type="hidden" name="category" value="{{ category }}">
+                        <input type="hidden" name="item" value="{{ item_name }}">
+                        <input class="inline_input" type="number" name="reserved"
+                               value="{{ res }}" min="0" style="width:70px">
+                        <button class="btn_ghost" type="submit" title="Set reserved" style="padding:5px 10px">
+                            Res <i class="fa-solid fa-check"></i>
+                        </button>
+                    </form>
+                </div>
+            </td>
+            {% if is_founder %}
+            <td>
+                <form method="POST" style="display:inline;"
+                      onsubmit="return confirm('Remove {{ item_name }}?')">
+                    <input type="hidden" name="action" value="remove_item">
+                    <input type="hidden" name="category" value="{{ category }}">
+                    <input type="hidden" name="item" value="{{ item_name }}">
+                    <button type="submit" class="btn_ghost"
+                            style="padding:4px 8px;color:#c0392b;border-color:#441111;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+
+        {% if is_founder %}
+        <tr>
+            <form method="POST">
+                <input type="hidden" name="action" value="add_item">
+                <input type="hidden" name="category" value="{{ category }}">
+                <td>
+                    <input class="inline_input" type="text" name="item_name"
+                           placeholder="New item…" required style="width:140px;">
+                </td>
+                <td colspan="3">
+                    <input class="inline_input" type="number" name="quantity"
+                           value="0" min="0" style="width:70px;">
+                </td>
+                <td colspan="2">
+                    <button class="btn_ghost" type="submit" style="padding:5px 12px;">
+                        <i class="fa-solid fa-plus"></i> Add Item
+                    </button>
+                </td>
+            </form>
+        </tr>
+        {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endfor %}
+
+{% if not inventory %}
+<div class="section_card">
+    <p style="color:#555">No inventory items found.</p>
+</div>
+{% endif %}
+
+{% if is_founder %}
+<div class="section_card" style="margin-top:24px;">
+    <h2>Add New Category</h2>
+    <form method="POST" style="display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap;">
+        <input type="hidden" name="action" value="add_category">
+        <div>
+            <label style="display:block;color:#777;font-size:11px;text-transform:uppercase;
+                          letter-spacing:0.5px;margin-bottom:5px;">Category Name</label>
+            <input class="inline_input" type="text" name="category_name"
+                   placeholder="e.g. Equipment" required style="width:220px;">
+        </div>
+        <button class="btn_ghost" type="submit" style="padding:8px 18px;">
+            <i class="fa-solid fa-plus"></i> Add Category
+        </button>
+    </form>
+</div>
+{% endif %}
+
+{% endblock %}

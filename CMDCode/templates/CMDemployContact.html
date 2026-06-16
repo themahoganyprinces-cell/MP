@@ -1,0 +1,128 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDemployContactstyle.css') }}">
+    <title>Stay in Contact</title>
+{% endblock %}
+{% block content %}
+<div id="contact_page">
+
+    <div id="feed_header">
+        <h1>Stay in Contact</h1>
+        <p class="feed_sub">Team thread — keep it real, keep it respectful.</p>
+    </div>
+
+    <div id="feed_wrapper">
+        <div id="feed_messages">
+            {% for post in posts|reverse %}
+            {% set author = employees.get(post.employee_code) %}
+            {% set is_mine = (post.employee_code == employee_code) %}
+            <div class="msg_row {{ 'mine' if is_mine else 'theirs' }}" data-post-id="{{ post.id }}">
+                {% if not is_mine %}
+                <img class="msg_avatar"
+                     src="{{ url_for('static', filename=author.avatar if author and author.avatar else 'PNG/employee_avatar.svg') }}"
+                     alt="avatar">
+                {% endif %}
+                <div class="msg_bubble">
+                    {% if not is_mine %}
+                    <span class="msg_author">{{ author.first_name ~ ' ' ~ author.last_name if author else post.employee_code }}</span>
+                    {% endif %}
+                    <p class="msg_content">{{ post.content | replace_mentions }}</p>
+                    <span class="msg_time">{{ post.timestamp.strftime('%b %d, %I:%M %p') }}</span>
+                </div>
+                {% if is_mine %}
+                <img class="msg_avatar"
+                     src="{{ url_for('static', filename=employee_avatar if employee_avatar else 'PNG/employee_avatar.svg') }}"
+                     alt="avatar">
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="feed_empty">No messages yet. Say something!</div>
+            {% endfor %}
+        </div>
+
+        <div id="feed_composer">
+            <form method="POST" action="{{ url_for('employee_contact_post') }}" id="post_form">
+                <img id="composer_avatar"
+                     src="{{ url_for('static', filename=employee_avatar if employee_avatar else 'PNG/employee_avatar.svg') }}"
+                     alt="you">
+                <div id="composer_right">
+                    <textarea id="post_input" name="content" rows="2"
+                              placeholder="Write a message… use @Name to mention someone"
+                              maxlength="500" required></textarea>
+                    <div id="composer_actions">
+                        <span id="char_count">0 / 500</span>
+                        <button type="submit" id="post_btn">Send</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const feed     = document.getElementById('feed_messages');
+const textarea = document.getElementById('post_input');
+const charCount = document.getElementById('char_count');
+let latestId   = {{ (posts[0].id if posts else 0) }};
+
+// Scroll to bottom on load
+feed.scrollTop = feed.scrollHeight;
+
+// Character counter
+textarea.addEventListener('input', () => {
+    charCount.textContent = `${textarea.value.length} / 500`;
+});
+
+// Poll for new posts every 10 seconds
+async function pollNewPosts() {
+    try {
+        const res  = await fetch(`/employ/contact/posts?since=${latestId}`);
+        const data = await res.json();
+        if (!data.length) return;
+
+        const myCode = "{{ employee_code }}";
+        const emptyEl = feed.querySelector('.feed_empty');
+        if (emptyEl) emptyEl.remove();
+
+        data.forEach(p => {
+            const isMine = p.employee_code === myCode;
+            const avatarSrc = p.avatar
+                ? `/static/${p.avatar}`
+                : "{{ url_for('static', filename='PNG/employee_avatar.svg') }}";
+
+            const row = document.createElement('div');
+            row.className = `msg_row ${isMine ? 'mine' : 'theirs'}`;
+            row.dataset.postId = p.id;
+
+            const avatarEl = `<img class="msg_avatar" src="${avatarSrc}" alt="avatar">`;
+            const authorEl = isMine ? '' : `<span class="msg_author">${p.author}</span>`;
+            const highlighted = p.content.replace(/@(\S+)/g, '<span class="mention">@$1</span>');
+
+            row.innerHTML = `
+                ${!isMine ? avatarEl : ''}
+                <div class="msg_bubble">
+                    ${authorEl}
+                    <p class="msg_content">${highlighted}</p>
+                    <span class="msg_time">${p.timestamp}</span>
+                </div>
+                ${isMine ? avatarEl : ''}
+            `;
+            feed.appendChild(row);
+            latestId = Math.max(latestId, p.id);
+        });
+
+        feed.scrollTop = feed.scrollHeight;
+    } catch (_) {}
+}
+
+setInterval(pollNewPosts, 10000);
+
+// Cmd/Ctrl+Enter submits
+textarea.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        document.getElementById('post_form').submit();
+    }
+});
+</script>
+{% endblock %}

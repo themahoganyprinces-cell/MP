@@ -1,0 +1,104 @@
+#pagescroll{
+    background-color: #FCBE28;
+    text-decoration: none;
+}
+.pagescrollloc{
+    padding-left:5%;
+    padding-right:5%;
+    text-decoration: none;
+    color:black;
+}
+#servicesmenu{
+    height:100px;
+    width: 40px;
+}
+.description{
+    font-size: 16px;
+    color: white;
+    width:50%;
+}
+h2{
+    color: #FCBE28;
+    border-bottom: solid #FCBE28 2px;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+    width:79%;
+}
+.scroll{
+    color: #FCBE28;
+    text-decoration: none;
+    font-size: 20px;
+    padding: 6px 4px;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+.scroll:hover {
+    color: #FCBE28;
+    border-bottom: 2px solid #FCBE28;
+}
+header{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+#page_title{
+    font-size: 36px;
+    font-weight: bold;
+    color: #FCBE28;
+    margin: 0px;
+    text-decoration: underline;
+}
+#page_intro{
+    font-size: 18px;
+    color: white;
+    max-width: 75%;
+    margin-top: 0px;
+}
+table {
+    border-collapse: collapse;
+    width: 75%;
+    margin-top: 10px;
+}
+th, td {
+    color:white;
+    padding: 5px;
+    text-align: left;
+}
+th {
+    color:#FCBE28
+}
+#addon_price{
+    color: white;
+    font-weight: bold;
+}
+#top_button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background-color: #FCBE28;
+    color: black;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 100;
+    font-size: 16px;
+}
+
+#floating_book {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    z-index: 200;
+    background-color: #FCBE28;
+    color: black;
+    padding: 8px 16px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#floating_book.hidden {
+    display: none;
+}

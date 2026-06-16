@@ -1,0 +1,19 @@
+#contactform{
+    position: relative;
+    color:#FCBE28;
+    text-align:center;
+    border:3px solid #4B007D;
+    margin-left:300px;
+    margin-right:300px;
+    margin-top:20px;
+    padding:40px;
+    padding-top:0px;
+}
+h3{
+    font-size:40px;
+    text-decoration: underline;
+}
+.prompt{
+    font-size:20px;
+    margin-bottom:10px;
+}

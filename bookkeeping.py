@@ -1,0 +1,3 @@
+business_expenses = {"MP": {"MP_E_001":{"Expense Name": "", "Category": "","Cost":0,"Date":"","Payment Method":""}}, "MMM": {"MMM_E_001":{"Expense Name": "", "Category": "","Cost":0,"Date":"","Payment Method":""}}, "CMD": {"CMD_E_001":{"Expense Name": "", "Category": "","Cost":0,"Date":"","Payment Method":""}}, "MCE": {"MCE_E_001":{"Expense Name": "", "Category": "","Cost":0,"Date":"","Payment Method":""}}}
+
+    

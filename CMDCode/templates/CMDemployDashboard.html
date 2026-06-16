@@ -1,0 +1,83 @@
+{% extends "CMDemploy.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDemployDashstyle.css') }}">
+    <title>Dashboard — {{ employee_name }}</title>
+{% endblock %}
+{% block content %}
+<div id="dash_page">
+
+    <div id="dash_header">
+        <h1>Welcome back, {{ employee.first_name }}</h1>
+        <p class="dash_sub">Here's what's waiting for you today.</p>
+    </div>
+
+    <!-- ── Pending Job Offers ───────────────────────────────────── -->
+    <section id="offers_section">
+        <h2 class="section_title">Job Offers
+            {% if offers %}
+                <span class="badge">{{ offers|length }}</span>
+            {% endif %}
+        </h2>
+
+        {% if offers %}
+            <div id="offers_grid">
+                {% for item in offers %}
+                {% set ja = item.assignment %}
+                {% set b  = item.booking %}
+                <div class="offer_card">
+                    <div class="offer_top">
+                        <span class="offer_date">{{ b.date }}</span>
+                        <span class="offer_time">{{ b.start_time }}</span>
+                        <span class="offer_id">{{ b.appt_id }}</span>
+                    </div>
+                    <div class="offer_detail">
+                        <p class="offer_service">{{ b.service }}</p>
+                        <p class="offer_car">{{ b.car }}</p>
+                        <p class="offer_customer">Customer: {{ b.customer_name or 'N/A' }}</p>
+                    </div>
+                    <div class="offer_actions">
+                        <form method="POST" action="{{ url_for('employee_job_accept', appt_id=b.appt_id) }}">
+                            <button class="btn_accept" type="submit">Accept</button>
+                        </form>
+                        <form method="POST" action="{{ url_for('employee_job_deny', appt_id=b.appt_id) }}" class="deny_form">
+                            <select name="reason" class="deny_select" required>
+                                <option value="" disabled selected>Select reason…</option>
+                                {% for r in deny_reasons %}
+                                    <option value="{{ r }}">{{ r }}</option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn_deny" type="submit">Decline</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty_state">
+                <p>No pending job offers right now. Check back after new bookings come in.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- ── Quick Links ──────────────────────────────────────────── -->
+    <section id="quick_links">
+        <a class="quick_card" href="{{ url_for('employee_upcoming_jobs') }}">
+            <span class="quick_icon fa-solid fa-calendar-check"></span>
+            <span>Upcoming Jobs</span>
+        </a>
+        <a class="quick_card" href="{{ url_for('employee_availability') }}">
+            <span class="quick_icon fa-solid fa-clock"></span>
+            <span>Set Availability</span>
+        </a>
+        <a class="quick_card" href="{{ url_for('employee_contact') }}">
+            <span class="quick_icon fa-solid fa-comments"></span>
+            <span>Stay in Contact</span>
+        </a>
+        <a class="quick_card" href="{{ url_for('employee_pay_details') }}">
+            <span class="quick_icon fa-solid fa-dollar-sign"></span>
+            <span>Pay Details</span>
+        </a>
+    </section>
+
+</div>
+{% endblock %}

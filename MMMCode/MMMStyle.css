@@ -1,0 +1,115 @@
+body{
+    background-color: #C7B4FF;
+}
+nav {
+    background-color:#0C1A3B;
+    border-bottom: 1px solid #FCBE28;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-radius: 30px;
+}
+
+#navlogo{
+    border: 2px solid #F5C86A;
+    border-radius: 100%;
+}
+
+#navbrand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background-color: #C7B4FF;
+    border: 3px solid;
+    border-color: #0C1A3B;
+    text-align: center;
+    padding: 5px;
+    width: 250px;
+    border-radius: 30px;
+    margin:10px;
+}
+
+#navheadertext {
+    font-size: 10px;
+    font-weight: bold;
+    color: #F5C86A;
+}
+
+h2{
+    color:#0C1A3B;
+}
+
+
+.navbutton {
+    color: #0C1A3B;
+    background-color: #E7DBFF;
+    text-decoration: underline;
+    font-size: 20px;
+    transition: color 0.2s, border-color 0.2s;
+    border-radius: 30px;
+    margin:10px;
+    padding: 14px 40px;
+}
+
+.navbutton:hover {
+    color: #F5C86A;
+}
+
+.contact-btn {
+    color: #FCBE28;
+    background-color:#4B007D ;
+    text-decoration: none;
+    font-size: 20px;
+    font-weight: bold;
+    padding: 14px 40px;
+    border-radius: 10px;
+    transition: background-color 0.2s, transform 0.2s;
+}
+
+.contact-btn:hover {
+    background-color: #FCBE28;
+    color: white;
+    transform: scale(1.08);
+}
+
+.dropdown:hover .dropdownmenu {
+    display: block;
+}
+.dropdownmenu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #000000;
+    border: 1px solid #FCBE28;
+    border-radius: 1px;
+    padding: 10px 0;
+    z-index: 1000;
+    list-style: none;
+}
+.dropdown {
+    position: relative;
+    list-style: none;
+}
+.dropdown-item {
+    display: block;
+    padding: 8px 20px;
+    color: white;
+    text-decoration: none;
+    transition: background-color 0.2s;
+    list-style: none;
+}
+.dropdown-item:hover {
+    background-color: #4B007D;
+    color: #FCBE28;
+}   
+
+
+footer {
+    margin-top: auto;
+    padding: 20px 0;
+    text-align: center;
+    color: #FCBE28;
+    border-top: 1px solid #FCBE28;
+}

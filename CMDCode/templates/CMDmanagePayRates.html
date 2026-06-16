@@ -1,0 +1,288 @@
+{% extends "CMDmanage.html" %}
+{% block head %}<title>Pay Rates — Manage</title>{% endblock %}
+{% block content %}
+
+<h1 class="page_title">Pay Rates</h1>
+
+{% if saved %}<div class="success_banner"><i class="fa-solid fa-check"></i> Pay rates saved.</div>{% endif %}
+{% if msg   %}<div class="success_banner"><i class="fa-solid fa-check"></i> {{ msg }}</div>{% endif %}
+
+<!-- embed positions for JS -->
+<script type="application/json" id="positions_data">{{ positions | tojson }}</script>
+
+<!-- ── Positions ─────────────────────────────────────────────────── -->
+<div class="section_card">
+    <h2>Positions</h2>
+    <p style="color:#555;font-size:12px;margin:-8px 0 14px">
+        Positions are the roles you can assign pay to. Add one per role type — rename anytime.
+    </p>
+
+    <div class="positions_grid">
+        {% for pos in positions %}
+        <div class="pos_chip_wrap">
+            <div class="pos_chip" id="pos_chip_{{ loop.index }}">
+                <span class="badge badge_yellow">{{ pos }}</span>
+                <button class="btn_ghost" style="padding:3px 8px;font-size:11px"
+                        onclick="togglePosEdit({{ loop.index }})">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                {% if positions|length > 1 %}
+                <form method="POST" style="display:inline"
+                      onsubmit="return confirm('Remove {{ pos }}? This removes its rate from every service.')">
+                    <input type="hidden" name="action" value="delete_position">
+                    <input type="hidden" name="position" value="{{ pos }}">
+                    <button class="btn_danger" type="submit" style="padding:3px 8px;font-size:11px">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+            <form method="POST" id="pos_edit_{{ loop.index }}"
+                  style="display:none;gap:6px;align-items:center">
+                <input type="hidden" name="action" value="rename_position">
+                <input type="hidden" name="old_position" value="{{ pos }}">
+                <input class="inline_input" type="text" name="renamed_position"
+                       value="{{ pos }}" style="width:140px">
+                <button class="btn_gold" type="submit" style="padding:5px 10px;font-size:12px">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                <button class="btn_ghost" type="button" style="padding:5px 10px;font-size:12px"
+                        onclick="togglePosEdit({{ loop.index }})">Cancel</button>
+            </form>
+        </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="inline_form" style="margin-top:14px;gap:8px">
+        <input type="hidden" name="action" value="add_position">
+        <input class="inline_input" type="text" name="new_position"
+               placeholder="New position name" style="width:180px">
+        <button class="btn_gold" type="submit" style="padding:6px 14px">
+            <i class="fa-solid fa-plus"></i> Add Position
+        </button>
+    </form>
+</div>
+
+<!-- ── Service Rates ─────────────────────────────────────────────── -->
+<div class="section_card">
+    <h2>Service Rates</h2>
+    <p style="color:#555;font-size:12px;margin:-8px 0 16px">
+        Each service can have a different set of roles and pay amounts.
+    </p>
+
+    {% if rates %}
+    <table class="data_table">
+        <thead>
+            <tr>
+                <th>Service</th>
+                <th>Roles &amp; Pay</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for service, pos_rates in rates.items() %}
+        <tr>
+            <td><strong style="color:#ccc">{{ service }}</strong></td>
+            <td>
+                {% if pos_rates is mapping %}
+                    {% for pos, rate in pos_rates.items() %}
+                    <span class="rate_chip">
+                        <span style="color:#aaa">{{ pos }}</span>
+                        <span style="color:#FCBE28;font-weight:bold">${{ "%.2f"|format(rate) }}</span>
+                    </span>
+                    {% endfor %}
+                {% else %}
+                    <span style="color:#FCBE28">${{ "%.2f"|format(pos_rates) }}</span>
+                {% endif %}
+            </td>
+            <td>
+                <button class="btn_ghost" onclick="toggleRateEdit('{{ loop.index }}')">Edit</button>
+                <form method="POST" style="display:inline"
+                      onsubmit="return confirm('Remove {{ service }}?')">
+                    <input type="hidden" name="action" value="delete_rate">
+                    <input type="hidden" name="service" value="{{ service }}">
+                    <button class="btn_danger" type="submit" style="padding:6px 12px">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+
+        <!-- Inline edit row -->
+        <tr id="rate_edit_{{ loop.index }}" style="display:none;background:#0d0d0d">
+            <td colspan="3" style="padding:14px 12px">
+                <form method="POST">
+                    <input type="hidden" name="action" value="update_rate">
+                    <input type="hidden" name="service" value="{{ service }}">
+                    <div class="role_rows" id="edit_rows_{{ loop.index }}">
+                        {% if pos_rates is mapping %}
+                        {% for pos, rate in pos_rates.items() %}
+                        <div class="role_row">
+                            <select name="pos_{{ loop.index0 }}" class="role_select">
+                                {% for p in positions %}
+                                <option value="{{ p }}" {% if p == pos %}selected{% endif %}>{{ p }}</option>
+                                {% endfor %}
+                                <option value="{{ pos }}" {% if pos not in positions %}selected{% endif %}>{{ pos }}</option>
+                            </select>
+                            <input type="number" name="pay_{{ loop.index0 }}"
+                                   value="{{ rate }}" min="0" step="0.01"
+                                   placeholder="0.00" class="role_pay_input">
+                            <button type="button" class="btn_danger" style="padding:5px 10px"
+                                    onclick="removeRoleRow(this)">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                        {% endfor %}
+                        {% endif %}
+                    </div>
+                    <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+                        <button type="button" class="btn_ghost"
+                                onclick="addRoleRow('edit_rows_{{ loop.index }}')">
+                            <i class="fa-solid fa-plus"></i> Add Role
+                        </button>
+                        <button type="submit" class="btn_gold">
+                            <i class="fa-solid fa-check"></i> Save
+                        </button>
+                        <button type="button" class="btn_ghost"
+                                onclick="toggleRateEdit('{{ loop.index }}')">Cancel</button>
+                    </div>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="color:#555">No services added yet.</p>
+    {% endif %}
+</div>
+
+<!-- ── Add New Service ────────────────────────────────────────────── -->
+<div class="section_card">
+    <h2>Add New Service</h2>
+    <form method="POST" id="add_service_form">
+        <input type="hidden" name="action" value="add_rate">
+        <div class="mform" style="max-width:380px;margin-bottom:14px">
+            <div>
+                <label>Service Name</label>
+                <input type="text" name="new_service" placeholder="e.g. Radio Replacement" required>
+            </div>
+        </div>
+        <div class="role_rows" id="add_rows">
+            <!-- First row added by JS on load -->
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;flex-wrap:wrap">
+            <button type="button" class="btn_ghost" onclick="addRoleRow('add_rows')">
+                <i class="fa-solid fa-plus"></i> Add Another Role
+            </button>
+            <button type="submit" class="btn_gold">
+                <i class="fa-solid fa-check"></i> Complete
+            </button>
+        </div>
+    </form>
+</div>
+
+<script>
+const POSITIONS = JSON.parse(document.getElementById('positions_data').textContent);
+
+function buildSelect(name, selected) {
+    let opts = POSITIONS.map(function(p) {
+        return '<option value="' + p + '"' + (p === selected ? ' selected' : '') + '>' + p + '</option>';
+    }).join('');
+    return '<select name="' + name + '" class="role_select">' + opts + '</select>';
+}
+
+function addRoleRow(containerId) {
+    const container = document.getElementById(containerId);
+    const idx = container.querySelectorAll('.role_row').length;
+    const div = document.createElement('div');
+    div.className = 'role_row';
+    div.innerHTML =
+        buildSelect('pos_' + idx, POSITIONS[0]) +
+        '<input type="number" name="pay_' + idx + '" placeholder="0.00" min="0" step="0.01" class="role_pay_input">' +
+        '<button type="button" class="btn_danger" style="padding:5px 10px" onclick="removeRoleRow(this)">' +
+        '<i class="fa-solid fa-xmark"></i></button>';
+    container.appendChild(div);
+    reindexRows(container);
+}
+
+function removeRoleRow(btn) {
+    const row = btn.closest('.role_row');
+    const container = row.parentElement;
+    row.remove();
+    reindexRows(container);
+}
+
+function reindexRows(container) {
+    container.querySelectorAll('.role_row').forEach(function(row, i) {
+        const sel   = row.querySelector('select');
+        const input = row.querySelector('input[type="number"]');
+        if (sel)   sel.name   = 'pos_' + i;
+        if (input) input.name = 'pay_' + i;
+    });
+}
+
+function toggleRateEdit(idx) {
+    const row = document.getElementById('rate_edit_' + idx);
+    row.style.display = row.style.display === 'none' ? '' : 'none';
+}
+
+function togglePosEdit(idx) {
+    const chip = document.getElementById('pos_chip_' + idx);
+    const form = document.getElementById('pos_edit_' + idx);
+    const editing = form.style.display !== 'none';
+    chip.style.display = editing ? '' : 'none';
+    form.style.display = editing ? 'none' : 'flex';
+}
+
+// Seed one row in the add-service form on load
+document.addEventListener('DOMContentLoaded', function() {
+    addRoleRow('add_rows');
+});
+</script>
+
+<style>
+.positions_grid { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:4px; }
+.pos_chip_wrap  { display:flex; flex-direction:column; gap:4px; }
+.pos_chip       { display:flex; align-items:center; gap:6px; }
+
+.role_rows { display:flex; flex-direction:column; gap:8px; }
+.role_row  { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+
+.role_select {
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 5px;
+    padding: 7px 10px;
+    font-size: 13px;
+    min-width: 140px;
+}
+.role_select:focus { outline:none; border-color:#FCBE28; }
+
+.role_pay_input {
+    background: #1a1a1a;
+    color: white;
+    border: 1px solid #2a2a2a;
+    border-radius: 5px;
+    padding: 7px 10px;
+    font-size: 13px;
+    width: 110px;
+}
+.role_pay_input:focus { outline:none; border-color:#FCBE28; }
+.role_pay_input::placeholder { color:#444; }
+
+.rate_chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #1a1200;
+    border: 1px solid #3a2800;
+    border-radius: 12px;
+    padding: 2px 10px;
+    font-size: 12px;
+    margin: 2px 3px 2px 0;
+}
+</style>
+
+{% endblock %}

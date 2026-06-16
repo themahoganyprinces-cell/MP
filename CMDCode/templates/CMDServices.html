@@ -1,0 +1,108 @@
+{% extends "CMD.html" %}
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='CMDServicesstyle.css') }}">
+    <title>Service Menu</title>
+{% endblock %}
+{% block content %}
+    <header>
+        <h1 id="page_title">Service Menu</h1>
+        <p id="page_intro">Explore our range of services, from individual detailing options to comprehensive packages and special add-ons. 
+            Whether you're looking for a quick touch-up or a full-service experience, we have something for every vehicle 
+            and every need.</p>
+        <a class="scroll" id="Individual_scroll" href="#Individual_anchor">Individual Services</a>
+        <a class="scroll" id="Package_scroll" href="#Package_anchor">Packages</a>
+        <a class="scroll" id="Special_scroll" href="#Special_anchor">Special Add-Ons</a>
+       
+    </header>
+
+
+
+        <div class="Individual" id="Individual_anchor">
+            <h2>Individual Services</h2>
+            {% for service in services %}
+                <h3>{{ service.name }}</h3>
+                    {% if service.name == "Restoration" %}
+                        <p class = "description ">{{service.description}}</p>
+                        <p>{{service.additional_info}}</p>
+                    {% else %}
+                        <p class="description">{{ service.description }}</p>
+                        {% if not service.duo_only %}
+                            <table>
+                                <tr>
+                                    <th>Solo Price: ${{ "%0.2f" | format(service.solo_price) }}</th>
+                                    <th>Duo Price: ${{ "%0.2f" | format(service.duo_price) }}</th>
+                                </tr>
+                                <tr>
+                                    <td>Solo Duration: {{ service.solo_duration }} min</td>
+                                    <td>Duo Duration: {{ service.duo_duration }} min</td>
+                                </tr>
+                            </table>
+                        {% else %}
+                            <table>
+                                <tr>
+                                    <th>Duo Price: ${{ "%0.2f" | format(service.duo_price) }}</th>
+                                </tr>
+                                <tr>
+                                    <td>Duo Duration: {{ service.duo_duration }}</td>
+                                </tr>
+                            </table>
+                        {% endif %}
+                    {% endif %}
+            {% endfor %}  
+        </div>
+
+        <div class="Package" id="Package_anchor">
+            <h2>Packages</h2>
+            {% for package in packages %}
+                <div class="package-item">
+                    <h3>{{ package.name }}</h3>
+                    <p class="description">{{ package.description }}</p>
+                    {% if not package.duo_only %}
+                        <table>
+                            <tr>
+                                <th>Solo Price: ${{ "%0.2f" | format(package.solo_price) }}</th>
+                                <th>Duo Price: ${{ "%0.2f" | format(package.duo_price) }}</th>
+                            </tr>
+                            <tr>
+                                <td>Solo Duration: {{ package.solo_duration }} min</td>
+                                <td>Duo Duration: {{ package.duo_duration }} min</td>
+                            </tr>
+                        </table>
+                    {% else %}
+                        <table>
+                            <tr>
+                                <th>Duo Price: ${{ "%0.2f" | format(package.duo_price) }}</th>
+                            </tr>
+                            <tr>
+                                <td>Duo Duration: {{ package.duo_duration }} min</td>
+                            </tr>
+                        </table>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <div class= "Special" id="Special_anchor">
+            <h2>Special Add-Ons</h2>
+            {% for add_on in add_ons %}
+                <div class="add-on-item">
+                    <h3>{{ add_on.name }}</h3>
+                    <p class="description">{{ add_on.description }}</p>
+                    <p id="addon_price">Price: ${{ "%0.2f" | format(add_on.price) }}</p>
+                </div>
+            {% endfor %}
+        </div>
+        <a href="#page_title"><button id="top_button"><i class="fa-solid fa-arrow-up"></i></button></a>
+        <a href="{{ url_for('book') }}" id="floating_book" class="hidden">Book Now</a>
+
+<script>
+const nav          = document.querySelector('nav')
+const floatingBook = document.getElementById('floating_book')
+
+const observer = new IntersectionObserver((entries) => {
+    floatingBook.classList.toggle('hidden', entries[0].isIntersecting)
+}, { threshold: 0 })
+
+observer.observe(nav)
+</script>
+{% endblock %}
+
