@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>The Mahogany Princes</title>
+        <title>Contact Us — The Mahogany Princes</title>
         <link rel="icon" href="PNG/MPlogo.png">
         <link rel="stylesheet" href="TheMahoganyPrincesStyle.css">
         <link rel="stylesheet" href="TheMahoganyPrincesContactStyle.css">
@@ -18,46 +18,54 @@
                 <a class="navbutton" id="home" href="TheMahoganyPrincesHomePage.html">Home</a>
                 <a class="navbutton" id="decree" href="TheMahoganyPrincesDecree.html">Our Decree</a>
                 <a class="navbutton" id="council" href="TheMahoganyPrincesCouncil.html">The Council</a>
-                    <div class="dropdown">
-                        <a class="navbutton" id="services" href="TheMahoganyPrincesServices.html">Our Services</a>
-                        <ul class="dropdownmenu"> 
-                            <li><a class="dropdown-item" href="../CMD code/CMDHomePage.html">Car Detailing</a></li>
-                            <li><a class="dropdown-item" href="../MCE code/MCEHomePage.html">Home Services</a></li>
-                            <li><a class="dropdown-item" href="../MMM code/MMMHomePage.html">Artist and Influencer Management</a></li>
-                        </ul>
-                    </div>
+                <li class="dropdown">
+                    <a class="navbutton" id="services" href="TheMahoganyPrincesServices.html">Our Services</a>
+                    <ul class="dropdownmenu">
+                        <li><a class="dropdown-item" href="../CMDCode/CMDHomePage.html">Car Detailing</a></li>
+                        <li><a class="dropdown-item" href="../MCECode/MCEHomePage.html">Home Services</a></li>
+                        <li><a class="dropdown-item" href="../MMMCode/MMMHomePage.html">Artist and Influencer Management</a></li>
+                    </ul>
+                </li>
                 <a class="navbutton" id="socials" href="TheMahoganyPrincesSocials.html">Our Socials</a>
                 <a class="navbutton" id="employee_signin" href="TheMahoganyPrincesEmployeeSignIn.html">Employee Sign In</a>
-                <a class="contact-btn" id="contact" href="TheMahoganyPrincesContact.html">Contact Us</a>
+                <a class="contact-btn active" id="contact" href="TheMahoganyPrincesContact.html">Contact Us</a>
             </div>
         </nav>
-        <main id="contactform">
-            <h3>Contact Us</h3>
-            <form>
-                <div>
-                    <label class="prompt" for="name">Name</label>
-                    <input type="text" id="name" name="name" placeholder="Your name">
+
+        <main id="contact-main">
+            <section id="contact-hero">
+                <h1 id="contact-title">Contact Us</h1>
+                <p id="contact-subtitle">Reach out and we'll get back to you.</p>
+            </section>
+
+            <div id="contact-wrap">
+                <div id="contact-info">
+                    <img id="contact-logo" src="PNG/MPlogo.png" alt="The Mahogany Princes Logo">
+                    <p class="contact-detail"><span class="detail-label">Phone</span>(631) 994-6024</p>
+                    <p class="contact-detail"><span class="detail-label">Location</span>Atlanta, GA &amp; Long Island, NY</p>
+                    <p class="contact-detail"><span class="detail-label">Email</span>themahoganyprinces@gmail.com</p>
                 </div>
-                <br/>
-                <div>
-                    <label class="prompt" for="email">Email</label>
-                    <input type="email" id="email" name="email" placeholder="Your email">
-                </div>
-                <br/>
-                <div>
-                    <label class="prompt" for="message">Message</label>
-                    <textarea id="message" name="message" placeholder="Your message"></textarea>
-                </div>
-                <br/>
-                <button type="submit">Send</button>
-                <br/>
-                <img id="formlogo" src="PNG/MPlogo.png" alt="The Mahogany Princes Logo" width="50" height="50">
-            </form>
+
+                <form id="contact-form" action="#" method="POST">
+                    <div class="field-group">
+                        <label class="field-label" for="name">Name</label>
+                        <input class="field-input" type="text" id="name" name="name" placeholder="Your name" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="email">Email</label>
+                        <input class="field-input" type="email" id="email" name="email" placeholder="Your email" required>
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label" for="message">Message</label>
+                        <textarea class="field-input" id="message" name="message" placeholder="Your message" rows="6" required></textarea>
+                    </div>
+                    <button class="submit-btn" type="submit">Send Message</button>
+                </form>
+            </div>
         </main>
+
         <footer>
             <p>&copy; 2025 The Mahogany Princes. All rights reserved.</p>
         </footer>
-
     </body>
-    
 </html>

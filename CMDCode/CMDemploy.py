@@ -34,18 +34,22 @@ def _save_employees(data):
         json.dump(data, f, indent=4)
 
 def _get_location_code(city, state):
+    """Return 5-digit location code: [S][CC][DD] — state, 2-digit county, 2-digit district."""
     with open(DISTRICT_FILE) as f:
         data = json.load(f)
     for state_data in data["District Codes"].values():
         if state_data.get("State Abbreviation", "").upper() != state.upper():
             continue
+        state_code = state_data.get("State code", 0)
         for county_data in state_data.values():
             if not isinstance(county_data, dict) or "Districts" not in county_data:
                 continue
+            county_code = county_data.get("County code", 0)
             for district_data in county_data["Districts"].values():
                 if city in district_data.get("Towns", []):
-                    return f"{district_data['District code']:02d}"
-    return "00"
+                    district_code = district_data["District code"]
+                    return f"{state_code}{county_code:02d}{district_code:02d}"
+    return "00000"
 
 
 def register_employee_routes(app, db, Employee, PendingEmployee,

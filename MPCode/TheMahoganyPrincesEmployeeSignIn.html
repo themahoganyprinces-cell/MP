@@ -6,159 +6,7 @@
     <title>Employee Sign In — The Mahogany Princes</title>
     <link rel="icon" href="PNG/MPlogo.png">
     <link rel="stylesheet" href="TheMahoganyPrincesStyle.css">
-    <style>
-        body {
-            background: #0a0a0a;
-            color: #ccc;
-            font-family: Arial, sans-serif;
-            min-height: 100vh;
-            margin: 0;
-        }
-
-        /* ── Nav (matches site nav) ───────────────────────────── */
-        nav {
-            border-bottom: 1px solid #FCBE28;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-        }
-        #nav-brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        #logo { width: 50px; height: 50px; }
-        #navheader {
-            color: #FCBE28;
-            font-size: 18px;
-            font-weight: bold;
-        }
-        #nav-links {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-        .navbutton {
-            color: #FCBE28;
-            text-decoration: none;
-            font-size: 16px;
-            padding: 6px 4px;
-            border-bottom: 2px solid transparent;
-            transition: border-color 0.2s;
-        }
-        .navbutton:hover { border-bottom-color: #FCBE28; }
-        .navbutton.active { border-bottom-color: #FCBE28; }
-        .contact-btn {
-            color: black;
-            background: #FCBE28;
-            padding: 8px 16px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-        }
-
-        /* ── Page hero ────────────────────────────────────────── */
-        .signin_hero {
-            text-align: center;
-            padding: 56px 20px 32px;
-        }
-        .signin_hero h1 {
-            color: #FCBE28;
-            font-size: 28px;
-            margin: 0 0 10px;
-            letter-spacing: 1px;
-        }
-        .signin_hero p {
-            color: #555;
-            font-size: 14px;
-            margin: 0;
-        }
-
-        /* ── Branch cards ─────────────────────────────────────── */
-        .branch_grid {
-            display: flex;
-            justify-content: center;
-            gap: 28px;
-            flex-wrap: wrap;
-            padding: 40px 20px 80px;
-        }
-
-        .branch_card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 16px;
-            background: #111;
-            border: 1px solid #1e1e1e;
-            border-radius: 14px;
-            padding: 40px 36px;
-            width: 220px;
-            text-decoration: none;
-            transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
-            cursor: pointer;
-        }
-        .branch_card:hover {
-            border-color: #FCBE28;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 32px rgba(252, 190, 40, 0.12);
-        }
-        .branch_card.inactive {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .branch_logo {
-            width: 72px;
-            height: 72px;
-            object-fit: contain;
-        }
-
-        .branch_abbr {
-            font-size: 13px;
-            font-weight: bold;
-            letter-spacing: 2px;
-            color: #FCBE28;
-            text-transform: uppercase;
-        }
-        .branch_name {
-            font-size: 13px;
-            color: #666;
-            text-align: center;
-            line-height: 1.5;
-        }
-        .branch_status {
-            font-size: 10px;
-            padding: 2px 10px;
-            border-radius: 10px;
-            font-weight: bold;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .status_active {
-            background: #0d2200;
-            color: #5cb85c;
-            border: 1px solid #5cb85c;
-        }
-        .status_soon {
-            background: #1a1200;
-            color: #666;
-            border: 1px solid #333;
-        }
-
-        footer {
-            text-align: center;
-            color: #333;
-            font-size: 12px;
-            padding: 20px;
-            border-top: 1px solid #1a1a1a;
-        }
-    </style>
+    <link rel="stylesheet" href="TheMahoganyPrincesEmployeeSignInStyle.css">
 </head>
 <body>
     <nav>
@@ -170,41 +18,54 @@
             <a class="navbutton" href="TheMahoganyPrincesHomePage.html">Home</a>
             <a class="navbutton" href="TheMahoganyPrincesDecree.html">Our Decree</a>
             <a class="navbutton" href="TheMahoganyPrincesCouncil.html">The Council</a>
+            <li class="dropdown">
+                <a class="navbutton" href="TheMahoganyPrincesServices.html">Our Services</a>
+                <ul class="dropdownmenu">
+                    <li><a class="dropdown-item" href="../CMDCode/CMDHomePage.html">Car Detailing</a></li>
+                    <li><a class="dropdown-item" href="../MCECode/MCEHomePage.html">Home Services</a></li>
+                    <li><a class="dropdown-item" href="../MMMCode/MMMHomePage.html">Artist and Influencer Management</a></li>
+                </ul>
+            </li>
             <a class="navbutton" href="TheMahoganyPrincesSocials.html">Our Socials</a>
             <a class="navbutton active" href="TheMahoganyPrincesEmployeeSignIn.html">Employee Sign In</a>
             <a class="contact-btn" href="TheMahoganyPrincesContact.html">Contact Us</a>
         </div>
     </nav>
 
-    <div class="signin_hero">
+    <section class="signin-hero">
         <h1>Employee Sign In</h1>
         <p>Select your branch to continue.</p>
-    </div>
+    </section>
 
-    <div class="branch_grid">
-        <!-- CMD — functional -->
-        <a class="branch_card" href="../CMDCode/employ/signin">
-            <img class="branch_logo" src="PNG/CMDlogo.png" alt="Crown Mahogany Detailing">
-            <span class="branch_abbr">CMD</span>
-            <span class="branch_name">Crown Mahogany<br>Detailing</span>
-            <span class="branch_status status_active">Active</span>
+    <div class="branch-grid">
+
+        <a class="branch-card" href="https://cmd.themahoganyprinces.com/employ/signin">
+            <div class="branch-logo-wrap">
+                <img class="branch-logo" src="PNG/CMDlogo.png" alt="Crown Mahogany Detailing">
+            </div>
+            <span class="branch-abbr">CMD</span>
+            <span class="branch-name">Crown Mahogany<br>Detailing</span>
+            <span class="branch-status status-active">Active</span>
         </a>
 
-        <!-- MMM — coming soon -->
-        <div class="branch_card inactive">
-            <img class="branch_logo" src="PNG/MMMlogo.png" alt="Mahogany Multimedia Management">
-            <span class="branch_abbr">MMM</span>
-            <span class="branch_name">Mahogany Multimedia<br>Management</span>
-            <span class="branch_status status_soon">Coming Soon</span>
+        <div class="branch-card inactive">
+            <div class="branch-logo-wrap">
+                <img class="branch-logo" src="PNG/MMMlogo.png" alt="Mahogany Multimedia Management">
+            </div>
+            <span class="branch-abbr">MMM</span>
+            <span class="branch-name">Mahogany Multimedia<br>Management</span>
+            <span class="branch-status status-soon">Coming Soon</span>
         </div>
 
-        <!-- MCE — coming soon -->
-        <div class="branch_card inactive">
-            <img class="branch_logo" src="PNG/MCElogo.png" alt="Mahogany Crown Estates">
-            <span class="branch_abbr">MCE</span>
-            <span class="branch_name">Mahogany Crown<br>Estates</span>
-            <span class="branch_status status_soon">Coming Soon</span>
+        <div class="branch-card inactive">
+            <div class="branch-logo-wrap">
+                <img class="branch-logo" src="PNG/MCElogo.png" alt="Mahogany Castle Estates">
+            </div>
+            <span class="branch-abbr">MCE</span>
+            <span class="branch-name">Mahogany Castle<br>Estates</span>
+            <span class="branch-status status-soon">Coming Soon</span>
         </div>
+
     </div>
 
     <footer>

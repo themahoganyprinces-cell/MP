@@ -8,7 +8,43 @@
 {% block content %}
 
     <h1>Book an Appointment</h1>
-    <div id="car_selection">
+
+    <!-- ── Step 0: Location ───────────────────────────────────────────── -->
+    <div id="location_step">
+        <p class="step-title">Where do you need service?</p>
+        <div id="location_form">
+            <div class="loc_field">
+                <label class="loc_label" for="loc_state">State</label>
+                <select id="loc_state" class="loc_select">
+                    <option value="">— Select State —</option>
+                </select>
+            </div>
+            <div class="loc_field">
+                <label class="loc_label" for="loc_county">County</label>
+                <select id="loc_county" class="loc_select" disabled>
+                    <option value="">— Select County —</option>
+                </select>
+            </div>
+            <div class="loc_field">
+                <label class="loc_label" for="loc_city">City / Town</label>
+                <select id="loc_city" class="loc_select" disabled>
+                    <option value="">— Select City —</option>
+                </select>
+            </div>
+            <div class="loc_field">
+                <label class="loc_label" for="loc_address">Street Address <span style="color:#666;font-weight:normal;">(optional)</span></label>
+                <input type="text" id="loc_address" class="loc_input" placeholder="123 Main St">
+            </div>
+            <p id="loc_error" class="hidden" style="color:#e74c3c;font-size:13px;margin:0;">Please select a state, county, and city before continuing.</p>
+            <button id="loc_confirm_btn" class="form_nav_buttons" style="margin-top:12px;">Confirm Location &amp; Select Car</button>
+        </div>
+        <div id="loc_confirmed_banner" class="hidden" style="display:none;">
+            <p id="loc_confirmed_text" style="color:#FCBE28;margin:0;"></p>
+            <button id="loc_change_btn" style="background:none;border:none;color:#9b59b6;cursor:pointer;font-size:13px;text-decoration:underline;margin-left:12px;">Change</button>
+        </div>
+    </div>
+
+    <div id="car_selection" class="hidden">
         <div class="step-title"><p>Select a car type</p></div>
         <nav id="car_list">
             {% for car in cars %}
@@ -291,14 +327,7 @@
             <input type="tel" id="customer_phone_input" placeholder="555-555-5555">
 
             <h3 style="margin-top:18px;">Service Location</h3>
-            <p>Where should we come to you? This can be your home, workplace, or any address.</p>
-            <label for="service_address_input">Street Address <span>(optional)</span>:</label>
-            <input type="text" id="service_address_input" placeholder="123 Main St">
-            <label for="service_city_input">City <span>(required for scheduling)</span>:</label>
-            <input type="text" id="service_city_input" placeholder="Richmond">
-            <label for="service_state_input">State <span>(2-letter abbreviation)</span>:</label>
-            <input type="text" id="service_state_input" placeholder="VA" maxlength="2"
-                   style="text-transform:uppercase;width:80px;">
+            <p id="final_location_summary" style="color:#FCBE28;margin:0;"></p>
             <p id="customer_info_error" class="hidden">Please enter your name and email before confirming.</p>
         </div>
         <div class="page-nav">
@@ -316,6 +345,10 @@
         </div>
     </div>
 
+<script type="application/json" id="district-data">
+{{ district_codes | tojson }}
+</script>
+
 <script type="application/json" id="page-data">
 {
     "services": {{ services | tojson }},
@@ -326,6 +359,115 @@
 </script>
 
 <script>
+// ─── Location step ────────────────────────────────────────────────────────
+const _districtData = JSON.parse(document.getElementById('district-data').textContent)
+const _states       = _districtData["District Codes"]
+
+const locStateEl  = document.getElementById('loc_state')
+const locCountyEl = document.getElementById('loc_county')
+const locCityEl   = document.getElementById('loc_city')
+const locAddrEl   = document.getElementById('loc_address')
+const locError    = document.getElementById('loc_error')
+
+// Derive 5-digit district code from selected state/county/city
+function _deriveDistrictCode(stateAbbr, countyName, cityName) {
+    for (const [, sData] of Object.entries(_states)) {
+        if (sData["State Abbreviation"] !== stateAbbr) continue
+        const scode = sData["State code"]
+        const countyData = sData[countyName]
+        if (!countyData) continue
+        const ccode = countyData["County code"]
+        for (const [, dData] of Object.entries(countyData["Districts"])) {
+            if (dData["Towns"].includes(cityName)) {
+                return `${scode}${String(ccode).padStart(2,'0')}${String(dData["District code"]).padStart(2,'0')}`
+            }
+        }
+        // city not found in any district — still return county-level code
+        return `${scode}${String(ccode).padStart(2,'0')}00`
+    }
+    return ''
+}
+
+// Populate state dropdown
+Object.entries(_states).forEach(([, sData]) => {
+    const opt = document.createElement('option')
+    opt.value = sData["State Abbreviation"]
+    opt.textContent = Object.keys(_districtData["District Codes"]).find(k => _districtData["District Codes"][k] === sData)
+    locStateEl.appendChild(opt)
+})
+
+locStateEl.addEventListener('change', () => {
+    locCountyEl.innerHTML = '<option value="">— Select County —</option>'
+    locCityEl.innerHTML   = '<option value="">— Select City —</option>'
+    locCountyEl.disabled = true
+    locCityEl.disabled   = true
+    const stateAbbr = locStateEl.value
+    if (!stateAbbr) return
+    const sData = Object.values(_states).find(s => s["State Abbreviation"] === stateAbbr)
+    if (!sData) return
+    Object.keys(sData).forEach(key => {
+        if (!sData[key] || typeof sData[key] !== 'object' || !sData[key]["Districts"]) return
+        const opt = document.createElement('option')
+        opt.value = key
+        opt.textContent = key
+        locCountyEl.appendChild(opt)
+    })
+    locCountyEl.disabled = false
+})
+
+locCountyEl.addEventListener('change', () => {
+    locCityEl.innerHTML  = '<option value="">— Select City —</option>'
+    locCityEl.disabled   = true
+    const stateAbbr  = locStateEl.value
+    const countyName = locCountyEl.value
+    if (!countyName) return
+    const sData    = Object.values(_states).find(s => s["State Abbreviation"] === stateAbbr)
+    const cData    = sData?.[countyName]
+    if (!cData) return
+    const towns = []
+    Object.values(cData["Districts"]).forEach(d => towns.push(...d["Towns"]))
+    towns.sort().forEach(town => {
+        const opt = document.createElement('option')
+        opt.value = town
+        opt.textContent = town
+        locCityEl.appendChild(opt)
+    })
+    locCityEl.disabled = false
+})
+
+const locationState = { district_code: '', city: '', state: '', county: '', address: '' }
+
+document.getElementById('loc_confirm_btn').addEventListener('click', () => {
+    const stateAbbr  = locStateEl.value
+    const countyName = locCountyEl.value
+    const cityName   = locCityEl.value
+    if (!stateAbbr || !countyName || !cityName) {
+        locError.classList.remove('hidden')
+        return
+    }
+    locError.classList.add('hidden')
+    locationState.state        = stateAbbr
+    locationState.county       = countyName
+    locationState.city         = cityName
+    locationState.address      = locAddrEl.value.trim()
+    locationState.district_code = _deriveDistrictCode(stateAbbr, countyName, cityName)
+
+    document.getElementById('location_step').querySelector('#location_form').classList.add('hidden')
+    const banner = document.getElementById('loc_confirmed_banner')
+    banner.style.display = 'flex'
+    banner.classList.remove('hidden')
+    document.getElementById('loc_confirmed_text').textContent =
+        `📍 ${locationState.address ? locationState.address + ', ' : ''}${cityName}, ${countyName} County, ${stateAbbr}`
+    document.getElementById('car_selection').classList.remove('hidden')
+})
+
+document.getElementById('loc_change_btn').addEventListener('click', () => {
+    document.getElementById('loc_confirmed_banner').style.display = 'none'
+    document.getElementById('location_form').classList.remove('hidden')
+    document.getElementById('car_selection').classList.add('hidden')
+})
+
+// ─── Booking state ────────────────────────────────────────────────────────
 const booking = {
     service_counter: 0,
     addons_counter: 0,
@@ -340,7 +482,6 @@ const booking = {
         name: null,
         email: null,
         phone: null,
-        address: null  // investigate if this needs encryption
     },
     appt_id: null,
 }
@@ -615,6 +756,7 @@ document.getElementById('booking_calendar').addEventListener('monthChanged', asy
     }
     const addonNames = booking.addons.map(a => a.name).join(',')
     if (addonNames) params.set('addons', addonNames)
+    if (locationState.district_code) params.set('district', locationState.district_code)
     const res  = await fetch(`/available-dates?${params}`)
     const data = await res.json()
     document.getElementById('booking_calendar').setMarkedDates(data)
@@ -687,6 +829,7 @@ async function loadSlotsForDate(dateStr) {
     }
     const addonNames = booking.addons.map(a => a.name).join(',')
     if (addonNames) params.set('addons', addonNames)
+    if (locationState.district_code) params.set('district', locationState.district_code)
 
     const res  = await fetch(`/available-slots?${params}`)
     const { available, duration } = await res.json()
@@ -1084,6 +1227,11 @@ document.getElementById('proceed_to_final_btn').addEventListener('click', () => 
 })
 
 function buildFinalConfirmation(allCars) {
+    const locSummary = document.getElementById('final_location_summary')
+    if (locSummary) {
+        const addr = locationState.address ? locationState.address + ', ' : ''
+        locSummary.textContent = `${addr}${locationState.city}, ${locationState.county} County, ${locationState.state}`
+    }
     const carsList = document.getElementById('final_cars_list')
     carsList.innerHTML = ''
     const pricingRows = document.getElementById('final_pricing_rows')
@@ -1145,9 +1293,10 @@ document.getElementById('submit_booking_btn').addEventListener('click', async ()
                     name:            customerName,
                     email:           customerEmail,
                     phone:           customerPhone,
-                    service_address: document.getElementById('service_address_input').value.trim(),
-                    service_city:    document.getElementById('service_city_input').value.trim(),
-                    service_state:   document.getElementById('service_state_input').value.trim().toUpperCase(),
+                    service_address: locationState.address,
+                    service_city:    locationState.city,
+                    service_state:   locationState.state,
+                    district_code:   locationState.district_code,
                 }
             })
         })

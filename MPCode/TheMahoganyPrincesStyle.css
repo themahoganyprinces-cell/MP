@@ -63,10 +63,15 @@ body {
 }
 
 .dropdown:hover .dropdownmenu {
-    display: block;
+    visibility: visible;
+    opacity: 1;
+    pointer-events: all;
 }
 .dropdownmenu {
-    display: none;
+    visibility: hidden;
+    opacity: 0;
+    pointer-events: none;
+    display: block;
     position: absolute;
     top: 100%;
     left: 0;
@@ -76,10 +81,14 @@ body {
     padding: 10px 0;
     z-index: 1000;
     list-style: none;
+    transition: opacity 0.15s, visibility 0.15s;
 }
 .dropdown {
     position: relative;
     list-style: none;
+    /* Extends hover area into the gap above the dropdown menu */
+    padding-bottom: 12px;
+    margin-bottom: -12px;
 }
 .dropdown-item {
     display: block;

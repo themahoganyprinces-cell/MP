@@ -48,7 +48,7 @@
                         "Brentwood",
                         "Brightwaters",
                         "Central Islip",
-                        "East Islip",	
+                        "East Islip",
                         "Sayville",
                         "West Sayville",
                         "Great River",
@@ -104,7 +104,7 @@
                         "Shoreham",
                         "Sound Beach",
                         "Upton",
-                        "Wading River"                
+                        "Wading River"
                     ]
                 },
                 "Riverhead":{
@@ -140,7 +140,6 @@
                         "Shelter Island Heights"
                     ]
                 },
-
                 "East Hampton":{
                     "District code":9,
                     "Towns":[
@@ -152,7 +151,7 @@
                     ]
                 },
                 "Southold":{
-                    "District code":0,
+                    "District code":10,
                     "Towns":[
                         "Cutchogue",
                         "Southold",
@@ -167,19 +166,80 @@
                 }
             }
         }
-    }},
-"Georgia": {
+    },
+    "Georgia": {
         "State Abbreviation":"GA",
-        "State code":0,
-        "Fulton":{
+        "State code":2,
+        "Clayton":{
+            "County code":0,
+            "Districts":{
+                "Clayton":{
+                    "District code":0,
+                    "Towns":[
+                        "Jonesboro",
+                        "Morrow",
+                        "Forest Park",
+                        "Riverdale",
+                        "College Park",
+                        "Hapeville",
+                        "Lake City",
+                        "Lovejoy",
+                        "Ellenwood",
+                        "Hampton",
+                        "Rex",
+                        "Conley",
+                        "Mundy Mill"
+                    ]
+                }
+            }
+        },
+        "DeKalb":{
             "County code":1,
             "Districts":{
-                "Atlanta":{
-                    "District code":1,
+                "DeKalb":{
+                    "District code":0,
                     "Towns":[
-                        "Atlanta"
+                        "Decatur",
+                        "Stone Mountain",
+                        "Tucker",
+                        "Avondale Estates",
+                        "Clarkston",
+                        "Pine Lake",
+                        "Lithonia",
+                        "Stonecrest",
+                        "Dunwoody",
+                        "Chamblee",
+                        "Doraville",
+                        "Brookhaven",
+                        "Panthersville"
+                    ]
+                }
+            }
+        },
+        "Fulton":{
+            "County code":2,
+            "Districts":{
+                "Fulton":{
+                    "District code":0,
+                    "Towns":[
+                        "Atlanta",
+                        "Sandy Springs",
+                        "Roswell",
+                        "Alpharetta",
+                        "Johns Creek",
+                        "Milton",
+                        "East Point",
+                        "Fairburn",
+                        "Palmetto",
+                        "Union City",
+                        "Chattahoochee Hills",
+                        "South Fulton",
+                        "College Park",
+                        "Hapeville",
+                        "Cascade"
                     ]
                 }
             }
         }
-    }}
+    }
+}}

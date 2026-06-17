@@ -1,0 +1,112 @@
+.signin-hero {
+    text-align: center;
+    padding: 60px 20px 30px;
+}
+
+.signin-hero h1 {
+    font-size: 52px;
+    font-weight: 900;
+    color: #FCBE28;
+    margin: 0 0 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.signin-hero p {
+    color: #aaa;
+    font-size: 17px;
+    margin: 0;
+}
+
+.branch-grid {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+    padding: 40px 20px 80px;
+}
+
+.branch-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: radial-gradient(circle at top left, #1a0030, #080010);
+    border: 1px solid #4B007D;
+    border-radius: 14px;
+    padding: 44px 36px;
+    width: 200px;
+    text-decoration: none;
+    transition: border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+
+.branch-card:hover {
+    border-color: #FCBE28;
+    transform: translateY(-6px);
+    box-shadow: 0 10px 36px rgba(252, 190, 40, 0.15);
+}
+
+.branch-card.inactive {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+.branch-logo-wrap {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: #000;
+    border: 2px solid #4B007D;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    transition: border-color 0.2s;
+}
+
+.branch-card:hover .branch-logo-wrap {
+    border-color: #FCBE28;
+}
+
+.branch-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.branch-abbr {
+    font-size: 14px;
+    font-weight: 900;
+    letter-spacing: 3px;
+    color: #FCBE28;
+    text-transform: uppercase;
+}
+
+.branch-name {
+    font-size: 13px;
+    color: #aaa;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.branch-status {
+    font-size: 11px;
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-active {
+    background: #0d2200;
+    color: #5cb85c;
+    border: 1px solid #5cb85c;
+}
+
+.status-soon {
+    background: #150025;
+    color: #666;
+    border: 1px solid #4B007D;
+}

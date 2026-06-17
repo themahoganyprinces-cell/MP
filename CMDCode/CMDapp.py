@@ -82,6 +82,7 @@ class Booking(db.Model):
     service_address = db.Column(db.String(200))
     service_city    = db.Column(db.String(100))
     service_state   = db.Column(db.String(2))
+    district_code   = db.Column(db.String(5))
 
 
 class JobAssignment(db.Model):
@@ -222,7 +223,10 @@ def contact():
 
 @app.route('/book')
 def book():
-    return render_template('CMDBook.html', **get_service_context(), **get_formula_context())
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'DistrictCodes.json')) as f:
+        district_codes = json.load(f)
+    return render_template('CMDBook.html', **get_service_context(), **get_formula_context(),
+                           district_codes=district_codes)
 
 def _service_fits(slots, slots_needed):
     """Return True if any contiguous block of slots_needed 30-min slots exists before 7 PM."""
@@ -246,11 +250,12 @@ def _service_fits(slots, slots_needed):
 def available_dates():
     import calendar as cal
     from datetime import date as date_cls
-    year         = request.args.get('year',  type=int)
-    month        = request.args.get('month', type=int)
-    service_name = request.args.get('service', '')
-    service_type = request.args.get('type', 'solo')
-    addon_names  = [a for a in request.args.get('addons', '').split(',') if a]
+    year          = request.args.get('year',  type=int)
+    month         = request.args.get('month', type=int)
+    service_name  = request.args.get('service', '')
+    service_type  = request.args.get('type', 'solo')
+    addon_names   = [a for a in request.args.get('addons', '').split(',') if a]
+    district_code = request.args.get('district', '')
     if not year or not month:
         return jsonify({'available': [], 'request': [], 'request_with_slots': []})
 
@@ -277,7 +282,7 @@ def available_dates():
             continue
         date_str  = f"{year}-{month:02d}-{day:02d}"
         is_far    = (this_date - today).days >= 14
-        raw_slots = get_available_time_slots(date_str)
+        raw_slots = get_available_time_slots(date_str, district_code=district_code)
         fits      = _service_fits(raw_slots, slots_needed)
 
         if is_far:
@@ -292,10 +297,11 @@ def available_dates():
 
 @app.route('/available-slots')
 def available_slots():
-    date         = request.args.get('date')
-    service_name = request.args.get('service', '')
-    service_type = request.args.get('type', 'solo')
-    addon_names  = [a for a in request.args.get('addons', '').split(',') if a]
+    date          = request.args.get('date')
+    service_name  = request.args.get('service', '')
+    service_type  = request.args.get('type', 'solo')
+    addon_names   = [a for a in request.args.get('addons', '').split(',') if a]
+    district_code = request.args.get('district', '')
 
     if not date:
         return jsonify([])
@@ -303,7 +309,7 @@ def available_slots():
     services_data = get_services()
     all_items     = {**services_data.get('services', {}), **services_data.get('packages', {})}
 
-    duration = 60  # default
+    duration = 60
     if service_name and service_name in all_items:
         item     = all_items[service_name]
         dur_key  = f"{service_type}_duration"
@@ -315,7 +321,7 @@ def available_slots():
     )
     total_duration = duration + addon_duration
 
-    raw_slots = get_available_time_slots(date)
+    raw_slots = get_available_time_slots(date, district_code=district_code)
     if not raw_slots:
         return jsonify({'available': [], 'duration': total_duration})
 
@@ -350,6 +356,7 @@ def submit_booking():
             service_address=customer.get('service_address', ''),
             service_city=customer.get('service_city', ''),
             service_state=(customer.get('service_state', '') or '').upper()[:2],
+            district_code=customer.get('district_code', ''),
         )
         db.session.add(booking)
         results.append({

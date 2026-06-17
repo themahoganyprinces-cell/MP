@@ -182,28 +182,48 @@ def get_employee_commission(employee_id):
 
     return round(total_commission, 2)
 
-def get_available_time_slots(date, employee_id=None):
-    """Get available time slots for a given date, filtered by employee availability and booked appointments."""
+def get_available_time_slots(date, employee_id=None, district_code=None):
+    """Get available time slots for a given date.
+
+    Filters by employee if employee_id is provided.
+    Filters by district/county when district_code is provided — falls back to
+    county-level (first 3 chars of district_code) and then to all employees if
+    no matches exist at the tighter level.
+    """
     employees_file = os.path.join(DATA_DIR, 'CrownMahoganyDetailingEmployees.json')
     with open(employees_file, 'r') as f:
         employees_data = json.load(f)
 
-    if employee_id and employee_id in employees_data["employees"]:
-        emp_availability = employees_data["employees"][employee_id].get("availability", {})
-        if date in emp_availability:
-            time_slots = emp_availability[date]
-        else:
-            time_slots = []  # Employee hasn't set availability for this day
+    all_employees = employees_data.get("employees", {})
+
+    if employee_id and employee_id in all_employees:
+        emp_availability = all_employees[employee_id].get("availability", {})
+        time_slots = emp_availability.get(date, [])
     else:
-        # Aggregate availability across all employees for this date
+        # Determine which employees to aggregate
+        pool = all_employees
+        if district_code and len(district_code) == 5:
+            county_prefix = district_code[:3]  # state + 2-digit county
+            # Try district-exact match first (employee_code segment == district_code)
+            district_pool = {
+                k: v for k, v in all_employees.items()
+                if len(k.split('-')) >= 2 and k.split('-')[1] == district_code
+            }
+            # Fall back to county-level match
+            county_pool = {
+                k: v for k, v in all_employees.items()
+                if len(k.split('-')) >= 2 and k.split('-')[1].startswith(county_prefix)
+            }
+            pool = district_pool or county_pool or all_employees
+
         time_slots_set = set()
-        for emp_data in employees_data.get("employees", {}).values():
+        for emp_data in pool.values():
             emp_avail = emp_data.get("availability", {})
             if date in emp_avail:
                 time_slots_set.update(emp_avail[date])
         time_slots = sorted(time_slots_set)
 
-    # Remove slots already booked
+    # Remove already-booked slots
     appointments = get_appointments()
     booked_slots = set()
     for status in ["Pending", "Accepted"]:
